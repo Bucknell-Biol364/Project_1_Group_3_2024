@@ -1,7 +1,7 @@
 # Project_1 R Tutorial
 
 ## Authors
-
+-Victoria Abramczuk
 
 
 ## Target Audience
