@@ -10,6 +10,8 @@ date: 14 Sep 2024
 # Load other packages here.
 if (!require("datasauRus")) install.packages("datasauRus"); library(datasauRus)
 if (!require("tidyverse")) install.packages("tidyverse"); library(tidyverse)
+if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
+if (!require("ggplot2")) install.packages("ggplot2"); library(ggplot2)
 ```
 
 This project will require you to develop a tutorial to teach Bucknell students how to use R for graphing and data analysis. 
@@ -18,6 +20,260 @@ This project will require you to develop a tutorial to teach Bucknell students h
 ```{r}
 colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv')
 stressor <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/stressor.csv')
+```
+## Data visualization (graphs!!)
+
+In order to really understand your data and the relationship between factors, it is important to be able to visualize them!
+
+R studio has some built-in plotting functions in the base, but most people seem to agree that using a package called ggplot2 is highly superior. We already loaded this in at the beginning of the tutorial. 
+
+ggplot uses a funny style of code where you can use + to add more layers and edit your graphs. The order you use might be a bit different from what you've done before but you'll get used to it! 
+
+Let's say we are interested in if there's a specific state where many bee colonies are lost. Let's try to make a graph of colonies lost per state using the function ggplot(). I will include a lot of space when I add a new term to the ggplot function so it's easy to read, but when you're actually coding you'd want to keep these compact!
+
+
+```{r}
+colony$year<-as.factor(colony$year)
+colony$months<-as.factor(colony$months)
+colony$state<-as.factor(colony$state)
+
+temp<-colony |> 
+  na.omit(colony_lost)
+
+
+ggplot(temp)+  #The name of the data frame you are using goes in the parenthesis
+  
+  
+  
+  aes(x=state, y=log((colony_lost)))+ #aes sets the x and y axes. Because there are big differences between states, I am using log to transform the colony lost function and make the states more comparable.
+  
+  
+  
+  geom_boxplot() #using geom_*** specifies which type of graph you want 
+```
+
+We've got a graph, but it looks pretty scary!!The axis titles are ugly, it's impossible to read the state names, and the grid background is distracting. 
+
+We can fix some of these problems. 
+
+```{r fig.heigh=200}
+
+ggplot(temp)+  
+  aes(x=state, y=log((colony_lost)))+
+  geom_boxplot(width = .7)+
+  
+  
+  
+  coord_flip()+ #this is an easy way to switch the x and y axis so labels easier to read
+  
+  
+  xlab("State") + #this fixes the labels so they say what we want
+  ylab("Colonies Lost")+
+  
+  
+  
+  theme_classic(base_size = 9)+ # this removes the annoying grid in the background
+  
+  
+  
+  geom_jitter(alpha=.1) #you can choose to show all the data points underlying the boxplot with this function. It's often a good idea to be transparent with your data so this is often a good idea, but in this case I felt it just made the graph look messy, even when I used alpha to make them transparant. 
+
+```
+However, this is still pretty hard to read, since there are so many states. While it makes sense initially to arrange them alphabetically, it might be better to range them in order of their medians. We can add use reorder() in the aes command to choose the order of our states. 
+
+```{r}
+ggplot(temp)+  
+  aes(x=reorder(state,colony_lost), y=log((colony_lost)), fill=state)+ #you can also add in color to make this a bit more lively. This will give a different color for each category
+  
+  geom_boxplot(width = .7, show.legend=FALSE)+ #however, for this specific graph, having a legend is redundant so we can remove it like this
+  
+  coord_flip()+ 
+  xlab("State") +
+  ylab("Colonies Lost")+
+  theme_classic(base_size = 9)
+```
+
+We can see that there is a range of loss across states, with New England having some of the smallest losses while states like California and North Dakota have a lot. We also have to remember that we used a log transformation on the losses to make them more readable. If we remove this transformation, the amount of loss in California appears all the more dramatic. 
+
+
+```{r}
+ggplot(temp)+  
+  aes(x=reorder(state,colony_lost), y=(colony_lost), fill=state)+
+  geom_boxplot(width = .7, show.legend=FALSE)+
+  coord_flip()+ 
+  xlab("State") +
+  ylab("Colonies Lost")+
+  theme_classic(base_size = 9)
+```
+
+However, the number of colonies lost may not be the best metric of which states are actually the most affected, since some states may simply have larger bee populations to start with and thus greater numbers of loss even if a small percentage is hurt. 
+
+To fix this, we can look at the colony_lost_pct, which gives the loss as a percentage. 
+
+
+Create a boxplot like the ones above with states and percentages lost.You may see that the results vary a lot!
+
+
+Try graphs both with and without log transformation and feel free to play around with stylizations. 
+
+
+```{r}
+
+```
+
+
+
+
+When making a graph with ggplot2, it is important that you take a minute to think about what graph type is best for your data. For example, you can technically make a scatterplot using geom_point using the colony lost and state information. 
+
+```{r}
+ggplot(temp)+  
+  aes(x=reorder(state,colony_lost), y=log((colony_lost)))+ 
+  geom_point(show.legend=FALSE)+ 
+  coord_flip()+ 
+  xlab("State") +
+  ylab("Colonies Lost")+
+  theme_classic(base_size = 9)
+```
+
+However, it's pretty nightmarish to try to read, and though we can still get a general idea of the trends it overall gives less information than the boxplot. If you're not sure about what kind of plot is best for your data, think about whether you have categorical or numerical variables, and if they are continuous. There are lots of cheatsheets and articles available online if you're not sure.
+
+A scatterplot is most appropriate for two continuous (numerical) variables. For example, we could plot colonies lost vs colonies added, splitting by year.
+
+The RColorBrewer package is just a nice way to get specific color palettes if you want your graphs to look prettier.
+
+You can view all the palettes here: 
+https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
+
+
+
+```{r}
+
+if (!require("RColorBrewer")) install.packages("RColorBrewer"); library(RColorBrewer)
+
+ggplot(temp)+  
+  aes(x=log(colony_lost), y=log(colony_added), color=year)+ 
+  geom_point()+ 
+  xlab("Colonies Lost") +
+  ylab("Colonies Added")+
+  theme_classic()+
+  scale_color_brewer(palette="OrRd")
+```
+From this, we can see that the relationship is mostly linear--as more colonies are lost, more are added as well. However, there is also a pretty large "hump" hanging down below the 5.0 y-axis, suggesting there are places with pretty significant colony loss that don't add in new colonies. We can also see a small trend with the points from 2021 tending to be higher, suggesting that perhaps beekeepers are mobilizing to add more new colonies. 
+
+
+We can further test this trend by adding linear models for each year using geom_smooth. (Of course, you would want to be sure using a linear model is appropriate. We will assume it is for here.) You will want to include the argument "method="lm"" to tell it to use a linear model. Otherwise, it'll try to fit the with kinda funky, not-so-great to interpret curvy line. Se=false gets rid of messy error bars, though you may want these in some cases.
+```{r}
+ggplot(temp)+  
+  aes(x=log(colony_lost), y=log(colony_added), color=year)+ 
+  geom_point()+ 
+  xlab("Colonies Lost") +
+  ylab("Colonies Added")+
+  theme_classic()+
+  scale_color_brewer(palette="OrRd")+
+  geom_smooth(method="lm",se=FALSE)
+```
+
+The y-intercept for 2021 is highest, suggesting a greater number of colonies is being added compared to those being lost. 
+
+
+Now try to make a scatterplot comparing colony percentage lost to percentage renovated and split it by year. 
+
+
+```{r}
+
+```
+
+
+
+##Hypothesis Testing
+
+
+Although the graphs we made are helpful to develop some initial trends and see our data, it's impossible to tell whether any trends we see are actually significant or could be due to chance. 
+
+Since we are looking at data collected from the real world and not an experiment, we can't really suggest causation, but we can test for correlations between factors. 
+
+
+An easy way to test correlation is to use a linear model. We can start by looking at if the percentage lost varies by year
+
+
+```{r}
+
+lmbee<-glm(colony_lost_pct~year, data=temp)
+summary(lmbee)
+
+```
+
+Before continuing with interpretation, however, we should test that using a linear model is appropriate for this data and fits well. To do this, we can look at the qqplot, which shows the distance of the residuals from a common line. 
+
+```{r}
+plot(lmbee)
+```
+In a well-fitting model, the points should fall on the plotted line. Some variation is to be expected, though, it may be helpful to do a log transformation on the loss percentage variable.
+
+```{r}
+lmbeelog<-glm(log(colony_lost_pct)~year, data=temp)
+summary(lmbeelog)
+plot(lmbeelog)
+```
+
+We can see that this improves the deviating upper tail a bit. 
+
+Now that we know that using a linear model is OK, we can look to interpret the model further. While the summary function spits out some p-values, these can be inaccurate as they don't account for error from repeating tests over many categories. 
+
+Doing an Anova can provide more accurate p-values.
+
+```{r}
+anova(lmbeelog)
+```
+The significant p-value tells us that at least one group is significantly different from Arizona. We can follow this up with a tukey test, which will tell us exactly which groups are different. 
+
+```{r}
+if (!require("multcomp")) install.packages("multcomp"); library(multcomp)
+tukey<-glht(lmbeelog, linfct=mcp(year="Tukey"))
+summary(tukey)
+```
+
+Unfortunately, it appears that when p-values are adjusted to account for multiple comparisions, none of the years are significantly different. However, we can also improve the linear model by adding addition explantory variables, such as the state and months. 
+
+
+
+```{r}
+lmbeenew<-glm(log(colony_lost_pct)~year + state + months, data=temp)
+summary(lmbeenew)
+plot(lmbeenew)
+```
+
+
+The qqplot seems ok.
+
+```{r}
+anova(lmbeenew)
+tukey2<-glht(lmbeenew, linfct=mcp(year="Tukey"))
+summary(tukey2)
+
+```
+
+
+Using a more complex model that accounts for state and month, there appears to be a significant difference between 2020 and 2016. 
+
+
+
+
+Now, try to use a linear model and anova to test whether the max colony amount correlates with year. You may want to include state as an additional explanatory variable. 
+
+
+Be sure to set your cutoff p-value before running the tests. R automatically uses 0.05, but you may interested in a different cutoff. 
+
+
+```{r}
+
+```
+
+If significance is found, follow up with a tukey test.
+
+```{r}
+
 ```
 
 
@@ -115,27 +371,4 @@ datasaurus_dozen |>
     facet_wrap(~dataset, ncol = 3)
 ```
 
-And did you notice the code in the {r} codechunk header that controlled the size of the output in the Rmd? Pretty neat trick!
 
-And here are two versions of the data that you could use in your data visualization tutorial. 
-To use them you would probably want to change the names of the datasets and also make x and y more meaningful. 
-Then save them as a csv or tsv to be imported later for your tutorial. 
-
-```{r}
-datasaurus_long <- datasaurus_dozen
-datasaurus_wide <- datasaurus_dozen_wide
-head(datasaurus_long)
-head(datasaurus_wide)
-```
-
-# Acknowledgements
-
-DatasauRus package and description below: Stephanie Locke https://github.com/jumpingrivers/datasauRus
-
-The datasauRus package wraps the awesome Datasaurus Dozen dataset, which contains 13 sets of x-y data. Each sub-dataset has five statistics that are (almost) the same in each case. (These are the mean of x, mean of y, standard deviation of x, standard deviation of y, and Pearson correlation between x and y). However, scatter plots reveal that each sub-dataset looks very different. The dataset is intended to be used to teach students that it is important to plot their own datasets, rather than relying only on statistics.
-
-The Datasaurus was created by Alberto Cairo and described in the paper [Same Stats, Different Graphs: Generating Datasets with Varied Appearance and Identical Statistics through Simulated Annealing](https://www.autodeskresearch.com/publications/samestats) by Justin Matejka and George Fitzmaurice.
-
-In the paper, Justin and George simulate a variety of datasets that the same summary statistics to the Datasaurus but have very different distributions. 
-
-This package also makes these datasets available for use as an advanced [Anscombe's Quartet](https://en.wikipedia.org/wiki/Anscombe%27s_quartet), available in R as `anscombe`.
