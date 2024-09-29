@@ -2,17 +2,156 @@
 title: "Group Project 1"
 subtitle: "Biology 368/664 Bucknell University"
 output: pdf_document
-authors: Prof. Ken Field
+authors: Victoria, Sweta and Kai - Group 3
 date: 14 Sep 2024
 ---
 
+This project will require you to develop a tutorial to teach Bucknell students how to use R for graphing and data analysis.
+
+## Loading the packages
+
+First of all, you'll need to load all the packages that might be required for the project.  
+
 ```{r Load Libraries, include=FALSE}
-# Load other packages here.
+knitr::opts_chunk$set(echo = TRUE)
 if (!require("datasauRus")) install.packages("datasauRus"); library(datasauRus)
-if (!require("tidyverse")) install.packages("tidyverse"); library(tidyverse)
+
+if (!require("rstatix")) install.packages("rstatix"); library(rstatix) # contains the pairwise_t_test function
+if (!require("UsingR")) install.packages("UsingR"); library(UsingR) # For the simple.eda function
+if (!require("cowplot")) install.packages("cowplot"); library(cowplot) # For clean graphs
+if (!require("readxl")) install.packages("readxl"); library(readxl) # For loading excel files
+if (!require("conflicted")) install.packages("conflicted"); library(conflicted) # For dealing with conflicts
+if (!require("tidyverse")) install.packages("tidyverse"); library(tidyverse) # For everything
+conflict_prefer_all("dplyr", quiet = TRUE)
+
+
 ```
 
-This project will require you to develop a tutorial to teach Bucknell students how to use R for graphing and data analysis. 
+
+## Importing the dataset
+
+You'll need to load the dataset using the read_csv or read.csv function. 
+For this project, we directly imported the dataset from Tidytuesday in Github.
+For other projects, you might want to download the .xls file or other file types and then import it in the R. 
+However, you'll have to make sure that your .Rmd project file and the data file is in the same folder or directory in R studio, else the codes will not run.
+
+
+```{r}
+colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv', show_col_types = FALSE)
+stressor <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/stressor.csv', show_col_types = FALSE)
+```
+
+## Colony dataset
+
+### Description of the bee colony data
+
+This dataset provides information on honey bee colonies in terms of number of colonies (colony_n), maximum (colony_max),lost (colony_lost), percent lost (colony_lost_pct), added (colony_added), renovated (colony_reno), and percent renovated (colony_reno_pct), as well as colonies lost with Colony Collapse Disorder symptoms with both over and less than five colonies. 
+
+[Not sure about this one: The report also identifies colony health stressors with five or more colonies. The data for operations with honey bee colonies are collected from a stratified sample of operations that responded as having honey bees on the Bee and Honey Inquiry and from the NASS list frame. For operations with five or more colonies, data was collected on a quarterly basis; operations with less than five colonies were collected with an annual survey.]
+
+## Data Exploration
+
+You'll need to use the str() function to check out the structure of the dataset. It will tell you about the different variables, their data type, and the number of observations from each of the variables. 
+
+Before you proceed with analyzing the dataset, it is necessary to make sure that it is complete and that you understand what each variable (column) means. Most of the times, You may need to refer to the paper where it is imported from. 
+
+You'll need to look at each variable (column) and determine if it is in the correct data type. The str() function shows the data types of different variables considered by R, while the summary will show what information the variables actually contain.
+
+Some of the variables might need conversion to a different data type.
+
+
+```{r}
+str(colony)
+```
+
+```{r}
+summary(colony)
+```
+
+In this case,, R has considered "year" as numeric data type (num), and "months" and "sate' as character (chr). 
+Since all of them are categorical variables as shown by the summary, they need to be converted as factors using the as.factor() function.
+
+In cases, where the data needed to be converted to a different data type other than factor, for example into character, then we could use the as.character() function. It works similarly for converting other data types.
+
+### Conversion of the data type of variables
+
+```{r}
+colony$year <- as.factor(colony$year)
+colony$months <- as.factor(colony$months)
+colony$state <- as.factor(colony$state)
+
+str(colony)
+```
+
+We check the structure of the dataset again to confirm that the transformation has worked.
+
+```{r}
+head(colony)
+tail(colony)
+```
+
+Using the head() and tail() functions show you the top 6 and bottom 6 observations of your dataset. This is a good way to know if the observations for each of the variables are arranged in order. Because sometimes, you might want to rearrange the order of the levels of the variables for easier analysis.
+
+In this case, the observations seem to have been arranged in chronological manner. For example, the observations for the column "year" starts with 2015 and ends with 2021. It means that there mus be observations of year 2016 to 2020 in an ascending order between 2015 and 2021.
+Similarly, the "state" variable is arranged in an alphabetically order.
+
+Overall, it looks like for for each states in the US, the bee colony data has been recorded each year from 2015 to 2021 for each month range (Jan-Mar, Apr-June, July-Sept, Oct-Dec).
+
+This kind of arrangement can be pretty beneficial in most cases.
+
+
+```{r}
+nrow(colony)
+```
+
+```{r}
+ncol(colony)
+```
+
+Checking the number of rows and columns is just another way to check the number of observations you have (you can see them in the structyre too.)
+
+## Creating a clean dataset
+
+Clean dataset refers to creating a new dataset by removing rows or columns that might not be required for data analysis. 
+
+We will only remove the NA's (missing values) for now. It is often necessary do so because they can interfere with data analysis, but honestly, it depends on the context.
+For example: Removing the NA's will make sure that the statistical functions run smoothly, it will avoid incorrect results for certain models, like regression, which requires the missing data to be well handled. This might lead to more reliable interpretations.
+But at the same time, deleting rows with NA will reduce the sample size which might causing the analysis to lose statistical power. In cases where NA's are not random, removing them might bias the results, especially if missing data is systematically related to certain variables.
+
+```{r}
+clean_colony <- colony |> 
+  drop_na(colony_n:colony_reno_pct) 
+```
+
+The drop_na() function removes rows where any column contains NA's. In this dataset, there were no NA's in the first three columns, so we assigned the function to the remaining columns. 
+It can also be modified by choosing specific columns depending on your hypothesis.
+
+```{r}
+summary(clean_colony)
+```
+
+We can see that after removing NA's, the number of observations decreased from 1222 to 929. 
+
+
+```{r}
+str(stressor)
+head(stressor)
+tail(stressor)
+```
+
+```{r}
+stressor$year <- as.factor(stressor$year)
+stressor$months <- as.factor(stressor$months)
+stressor$state <- as.factor(stressor$state)
+stressor$stressor <- as.factor(stressor$stressor)
+
+str(stressor)
+```
+
+```{r}
+summary(stressor)
+```
+
 
 ## Introduction
 
