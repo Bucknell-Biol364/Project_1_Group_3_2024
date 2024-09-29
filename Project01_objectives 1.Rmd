@@ -1,0 +1,253 @@
+---
+title: "Group Project 1"
+subtitle: "Biology 368/664 Bucknell University"
+output: pdf_document
+authors: Victoria, Sweta and Kai - Group 3
+date: 14 Sep 2024
+---
+
+This project will require you to develop a tutorial to teach Bucknell students how to use R for graphing and data analysis.
+
+## Loading the packages
+
+First of all, you'll need to load all the packages that might be required for the project.  
+
+```{r Load Libraries, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require("datasauRus")) install.packages("datasauRus"); library(datasauRus)
+
+if (!require("rstatix")) install.packages("rstatix"); library(rstatix) # contains the pairwise_t_test function
+if (!require("UsingR")) install.packages("UsingR"); library(UsingR) # For the simple.eda function
+if (!require("cowplot")) install.packages("cowplot"); library(cowplot) # For clean graphs
+if (!require("readxl")) install.packages("readxl"); library(readxl) # For loading excel files
+if (!require("conflicted")) install.packages("conflicted"); library(conflicted) # For dealing with conflicts
+if (!require("tidyverse")) install.packages("tidyverse"); library(tidyverse) # For everything
+conflict_prefer_all("dplyr", quiet = TRUE)
+
+
+```
+
+
+## Importing the dataset
+
+You'll need to load the dataset using the read_csv or read.csv function. 
+For this project, we directly imported the dataset from Tidytuesday in Github.
+For other projects, you might want to download the .xls file or other file types and then import it in the R. 
+However, you'll have to make sure that your .Rmd project file and the data file is in the same folder or directory in R studio, else the codes will not run.
+
+
+```{r}
+colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv', show_col_types = FALSE)
+stressor <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/stressor.csv', show_col_types = FALSE)
+```
+
+## Colony dataset
+
+### Description of the bee colony data
+
+This dataset provides information on honey bee colonies in terms of number of colonies (colony_n), maximum (colony_max),lost (colony_lost), percent lost (colony_lost_pct), added (colony_added), renovated (colony_reno), and percent renovated (colony_reno_pct), as well as colonies lost with Colony Collapse Disorder symptoms with both over and less than five colonies. 
+
+[Not sure about this one: The report also identifies colony health stressors with five or more colonies. The data for operations with honey bee colonies are collected from a stratified sample of operations that responded as having honey bees on the Bee and Honey Inquiry and from the NASS list frame. For operations with five or more colonies, data was collected on a quarterly basis; operations with less than five colonies were collected with an annual survey.]
+
+## Data Exploration
+
+You'll need to use the str() function to check out the structure of the dataset. It will tell you about the different variables, their data type, and the number of observations from each of the variables. 
+
+Before you proceed with analyzing the dataset, it is necessary to make sure that it is complete and that you understand what each variable (column) means. Most of the times, You may need to refer to the paper where it is imported from. 
+
+You'll need to look at each variable (column) and determine if it is in the correct data type. The str() function shows the data types of different variables considered by R, while the summary will show what information the variables actually contain.
+
+Some of the variables might need conversion to a different data type.
+
+
+```{r}
+str(colony)
+```
+
+```{r}
+summary(colony)
+```
+
+In this case,, R has considered "year" as numeric data type (num), and "months" and "sate' as character (chr). 
+Since all of them are categorical variables as shown by the summary, they need to be converted as factors using the as.factor() function.
+
+In cases, where the data needed to be converted to a different data type other than factor, for example into character, then we could use the as.character() function. It works similarly for converting other data types.
+
+### Conversion of the data type of variables
+
+```{r}
+colony$year <- as.factor(colony$year)
+colony$months <- as.factor(colony$months)
+colony$state <- as.factor(colony$state)
+
+str(colony)
+```
+
+We check the structure of the dataset again to confirm that the transformation has worked.
+
+```{r}
+head(colony)
+tail(colony)
+```
+
+Using the head() and tail() functions show you the top 6 and bottom 6 observations of your dataset. This is a good way to know if the observations for each of the variables are arranged in order. Because sometimes, you might want to rearrange the order of the levels of the variables for easier analysis.
+
+In this case, the observations seem to have been arranged in chronological manner. For example, the observations for the column "year" starts with 2015 and ends with 2021. It means that there mus be observations of year 2016 to 2020 in an ascending order between 2015 and 2021.
+Similarly, the "state" variable is arranged in an alphabetically order.
+
+Overall, it looks like for for each states in the US, the bee colony data has been recorded each year from 2015 to 2021 for each month range (Jan-Mar, Apr-June, July-Sept, Oct-Dec).
+
+This kind of arrangement can be pretty beneficial in most cases.
+
+
+```{r}
+nrow(colony)
+```
+
+```{r}
+ncol(colony)
+```
+
+Checking the number of rows and columns is just another way to check the number of observations you have (you can see them in the structyre too.)
+
+## Creating a clean dataset
+
+Clean dataset refers to creating a new dataset by removing rows or columns that might not be required for data analysis. 
+
+We will only remove the NA's (missing values) for now. It is often necessary do so because they can interfere with data analysis, but honestly, it depends on the context.
+For example: Removing the NA's will make sure that the statistical functions run smoothly, it will avoid incorrect results for certain models, like regression, which requires the missing data to be well handled. This might lead to more reliable interpretations.
+But at the same time, deleting rows with NA will reduce the sample size which might causing the analysis to lose statistical power. In cases where NA's are not random, removing them might bias the results, especially if missing data is systematically related to certain variables.
+
+```{r}
+clean_colony <- colony |> 
+  drop_na(colony_n:colony_reno_pct) 
+```
+
+The drop_na() function removes rows where any column contains NA's. In this dataset, there were no NA's in the first three columns, so we assigned the function to the remaining columns. 
+It can also be modified by choosing specific columns depending on your hypothesis.
+
+```{r}
+summary(clean_colony)
+```
+
+We can see that after removing NA's, the number of observations decreased from 1222 to 929. 
+
+
+## Introduction
+
+Begin by introducing yourself to your group. 
+Then discuss the biggest challenge that you have faced during the first three weeks of this course.
+Determine if there are any common threads in these challenges and start to think about objectives for the tutorial.
+
+## Target Audience
+
+Discuss with your group the target audience for the tutorial. 
+Examples could be a new student in Biology 364/664, a student in one of the new core Biology classes (201, 202, 203, or 204), a student in another 300-level Biology course (not 364), or a new student in one of the Bucknell research groups. 
+
+Edit the README.md file in your group's repository to reflect your plan.
+
+## Objectives
+
+After deciding on the target audience for your tutorial determine 2 to 3 overall objectives for your tutorial (one per member of your group). 
+These should be high-level objectives that are important skills for your target audience.
+Check with Prof. Field to see if they are appropriate and then add them to your README.md file.
+
+Identify at least 2 goals within each objective and add them to your README.md file.
+These should be goals that someone who is working through the tutorial can self-asses.
+For example, "to demostrate that you can test a hypothesis using a statistical model, the student should use a T test, linear model, or other test and interpret the p value appropriately."
+
+## Grading
+
+Each group will be expected to complete the following tasks to earn 85% of the points available for this assignment (21/25).
+
+- Identify and obtain suitable dataset
+- Use a Github repository and version control to collaborate on the project
+  + Every member of the group should participate in editing the repo
+- Spend 4-6 hours preparing, coding, and testing tutorial
+  + Data exploration
+  + Data visualization
+  + Hypothesis testing
+- Present tutorial in class
+- Provide public archive suitable for sharing to students/faculty
+
+Tutorials from previous classes can be viewed at our public github site: https://github.com/Bucknell-Biol364
+
+Each group should use an *Acknowledgements* section to document the participation of each member and the collaboration within and between groups.
+
+Additional credit will be awarded for providing assistance to other groups or for the development of a tutorial that goes beyond the minimal expectations listed above.
+You will have the opportunity to provide feedback to another group after the initial deadline (like for Homework 02).
+
+## Sample Dataset
+
+One of the possible datasets to use for the tutorial can be found in the datasauRus package.
+
+```{r}
+datasaurus_dozen |> 
+  group_by(dataset) |> 
+  summarize(
+      mean_x    = mean(x),
+      mean_y    = mean(y),
+      std_dev_x = sd(x),
+      std_dev_y = sd(y),
+      corr_x_y  = cor(x, y)
+      )
+```
+
+Compare the means and standard deviations of the 13 different datasets.
+
+
+Boxplots of either the x or the y value show that there are some differences, even though the means and standard deviations are identical.
+
+```{r}
+datasaurus_dozen |>
+  ggplot(aes(x = x, colour = dataset)) +
+    geom_boxplot() +
+    theme_void() +
+    theme(legend.position = "none") +
+    facet_wrap(~dataset, ncol = 3)
+```
+
+```{r}
+datasaurus_dozen |>
+  ggplot(aes(x = y, colour = dataset))+
+    geom_boxplot()+
+    theme_void()+
+    theme(legend.position = "none")+
+    facet_wrap(~dataset, ncol = 3)
+```
+
+But you have to visualize all of the data with a scatter plot to really see the patterns.
+
+```{r fig.height=12, fig.width=9}
+datasaurus_dozen |> 
+  ggplot(aes(x = x, y = y, colour = dataset))+
+    geom_point()+
+    theme_void()+
+    theme(legend.position = "none")+
+    facet_wrap(~dataset, ncol = 3)
+```
+
+And did you notice the code in the {r} codechunk header that controlled the size of the output in the Rmd? Pretty neat trick!
+
+And here are two versions of the data that you could use in your data visualization tutorial. 
+To use them you would probably want to change the names of the datasets and also make x and y more meaningful. 
+Then save them as a csv or tsv to be imported later for your tutorial. 
+
+```{r}
+datasaurus_long <- datasaurus_dozen
+datasaurus_wide <- datasaurus_dozen_wide
+head(datasaurus_long)
+head(datasaurus_wide)
+```
+
+# Acknowledgements
+
+DatasauRus package and description below: Stephanie Locke https://github.com/jumpingrivers/datasauRus
+
+The datasauRus package wraps the awesome Datasaurus Dozen dataset, which contains 13 sets of x-y data. Each sub-dataset has five statistics that are (almost) the same in each case. (These are the mean of x, mean of y, standard deviation of x, standard deviation of y, and Pearson correlation between x and y). However, scatter plots reveal that each sub-dataset looks very different. The dataset is intended to be used to teach students that it is important to plot their own datasets, rather than relying only on statistics.
+
+The Datasaurus was created by Alberto Cairo and described in the paper [Same Stats, Different Graphs: Generating Datasets with Varied Appearance and Identical Statistics through Simulated Annealing](https://www.autodeskresearch.com/publications/samestats) by Justin Matejka and George Fitzmaurice.
+
+In the paper, Justin and George simulate a variety of datasets that the same summary statistics to the Datasaurus but have very different distributions. 
+
+This package also makes these datasets available for use as an advanced [Anscombe's Quartet](https://en.wikipedia.org/wiki/Anscombe%27s_quartet), available in R as `anscombe`.
