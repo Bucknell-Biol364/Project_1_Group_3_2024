@@ -11,7 +11,10 @@ We are interested in speaking to an audience that is taking this class and has h
 
 ## Instructions
 
-
+1. Download the latest version of the R studio.
+2. Start by reading the descriptions for each codes and then running the code chunks in the same order they are in.
+3. Fill in the empty code chunks and try to be creative.
+4. Generate atleast one simple hypothesis from the dataset and try analyzing it using different models or techniques, and statistical functions.
 
 ## Objectives
 1. To be able to explore data within a dataset based on the data type, including conversion to factors or numerical, and identify outliers or messy data
