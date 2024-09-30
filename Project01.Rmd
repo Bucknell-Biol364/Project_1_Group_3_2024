@@ -123,6 +123,8 @@ We will only remove the NA's (missing values) for now. It is often necessary do 
 For example: Removing the NA's will make sure that the statistical functions run smoothly, it will avoid incorrect results for certain models, like regression, which requires the missing data to be well handled. This might lead to more reliable interpretations.
 But at the same time, deleting rows with NA will reduce the sample size which might causing the analysis to lose statistical power. In cases where NA's are not random, removing them might bias the results, especially if missing data is systematically related to certain variables.
 
+Here we are using the pipe function, or |> . This is neat trick that can be used with some r commands (not all of them unfortunately) to basically say, "use the output of this line as the input of the next line". 
+
 ```{r}
 clean_colony <- colony |> 
   drop_na(colony_n:colony_reno_pct) 
@@ -151,11 +153,8 @@ Let's say we are interested in if there's a specific state where many bee coloni
 
 
 ```{r}
-temp<-colony |> 
-  na.omit(colony_lost)
 
-
-ggplot(temp)+  #The name of the data frame you are using goes in the parenthesis
+ggplot(clean_colony)+  #The name of the data frame you are using goes in the parenthesis
   
   
   
@@ -170,9 +169,9 @@ We've got a graph, but it looks pretty scary!!The axis titles are ugly, it's imp
 
 We can fix some of these problems. 
 
-```{r fig.heigh=200}
+```{r}
 
-ggplot(temp)+  
+ggplot(clean_colony)+  
   aes(x=state, y=log((colony_lost)))+
   geom_boxplot(width = .7)+
   
@@ -197,7 +196,7 @@ ggplot(temp)+
 However, this is still pretty hard to read, since there are so many states. While it makes sense initially to arrange them alphabetically, it might be better to range them in order of their medians. We can add use reorder() in the aes command to choose the order of our states. 
 
 ```{r}
-ggplot(temp)+  
+ggplot(clean_colony)+  
   aes(x=reorder(state,colony_lost), y=log((colony_lost)), fill=state)+ #you can also add in color to make this a bit more lively. This will give a different color for each category
   
   geom_boxplot(width = .7, show.legend=FALSE)+ #however, for this specific graph, having a legend is redundant so we can remove it like this
@@ -212,7 +211,7 @@ We can see that there is a range of loss across states, with New England having 
 
 
 ```{r}
-ggplot(temp)+  
+ggplot(clean_colony)+  
   aes(x=reorder(state,colony_lost), y=(colony_lost), fill=state)+
   geom_boxplot(width = .7, show.legend=FALSE)+
   coord_flip()+ 
@@ -242,7 +241,7 @@ Try graphs both with and without log transformation and feel free to play around
 When making a graph with ggplot2, it is important that you take a minute to think about what graph type is best for your data. For example, you can technically make a scatterplot using geom_point using the colony lost and state information. 
 
 ```{r}
-ggplot(temp)+  
+ggplot(clean_colony)+  
   aes(x=reorder(state,colony_lost), y=log((colony_lost)))+ 
   geom_point(show.legend=FALSE)+ 
   coord_flip()+ 
@@ -266,7 +265,7 @@ https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
 
 if (!require("RColorBrewer")) install.packages("RColorBrewer"); library(RColorBrewer)
 
-ggplot(temp)+  
+ggplot(clean_colony)+  
   aes(x=log(colony_lost), y=log(colony_added), color=year)+ 
   geom_point()+ 
   xlab("Colonies Lost") +
@@ -281,7 +280,7 @@ From this, we can see that the relationship is mostly linear--as more colonies a
 We can further test this trend by adding linear models for each year using geom_smooth. (Of course, you would want to be sure using a linear model is appropriate. We will assume it is for here.) You will want to include the argument "method="lm"" to tell it to use a linear model. Otherwise, it'll try to fit the with kinda funky, not-so-great to interpret curvy line. Se=false gets rid of messy error bars, though you may want these in some cases.
 
 ```{r}
-ggplot(temp)+  
+ggplot(clean_colony)+  
   aes(x=log(colony_lost), y=log(colony_added), color=year)+ 
   geom_point()+ 
   xlab("Colonies Lost") +
@@ -316,7 +315,7 @@ An easy way to test correlation is to use a linear model. We can start by lookin
 
 ```{r}
 
-lmbee<-glm(colony_lost_pct~year, data=temp)
+lmbee<-glm(colony_lost_pct~year, data=clean_colony)
 summary(lmbee)
 
 ```
@@ -329,7 +328,7 @@ plot(lmbee)
 In a well-fitting model, the points should fall on the plotted line. Some variation is to be expected, though, it may be helpful to do a log transformation on the loss percentage variable.
 
 ```{r}
-lmbeelog<-glm(log(colony_lost_pct)~year, data=temp)
+lmbeelog<-glm(log(colony_lost_pct)~year, data=clean_colony)
 summary(lmbeelog)
 plot(lmbeelog)
 ```
@@ -351,12 +350,12 @@ tukey<-glht(lmbeelog, linfct=mcp(year="Tukey"))
 summary(tukey)
 ```
 
-Unfortunately, it appears that when p-values are adjusted to account for multiple comparisions, none of the years are significantly different. However, we can also improve the linear model by adding addition explantory variables, such as the state and months. 
+Unfortunately, it appears that when p-values are adjusted to account for multiple comparisions, none of the years are significantly different. However, we can also improve the linear model by adding addition explanatory variables, such as the state and months. 
 
 
 
 ```{r}
-lmbeenew<-glm(log(colony_lost_pct)~year + state + months, data=temp)
+lmbeenew<-glm(log(colony_lost_pct)~year + state + months, data=clean_colony)
 summary(lmbeenew)
 plot(lmbeenew)
 ```
