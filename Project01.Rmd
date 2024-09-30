@@ -48,7 +48,6 @@ stressor <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 
 This dataset provides information on honey bee colonies in terms of number of colonies (colony_n), maximum (colony_max),lost (colony_lost), percent lost (colony_lost_pct), added (colony_added), renovated (colony_reno), and percent renovated (colony_reno_pct), as well as colonies lost with Colony Collapse Disorder symptoms with both over and less than five colonies. 
 
-[Not sure about this one: The report also identifies colony health stressors with five or more colonies. The data for operations with honey bee colonies are collected from a stratified sample of operations that responded as having honey bees on the Bee and Honey Inquiry and from the NASS list frame. For operations with five or more colonies, data was collected on a quarterly basis; operations with less than five colonies were collected with an annual survey.]
 
 ## Data Exploration
 
@@ -463,55 +462,5 @@ Each group should use an *Acknowledgements* section to document the participatio
 
 Additional credit will be awarded for providing assistance to other groups or for the development of a tutorial that goes beyond the minimal expectations listed above.
 You will have the opportunity to provide feedback to another group after the initial deadline (like for Homework 02).
-
-## Sample Dataset
-
-One of the possible datasets to use for the tutorial can be found in the datasauRus package.
-
-```{r}
-datasaurus_dozen |> 
-  group_by(dataset) |> 
-  summarize(
-      mean_x    = mean(x),
-      mean_y    = mean(y),
-      std_dev_x = sd(x),
-      std_dev_y = sd(y),
-      corr_x_y  = cor(x, y)
-      )
-```
-
-Compare the means and standard deviations of the 13 different datasets.
-
-
-Boxplots of either the x or the y value show that there are some differences, even though the means and standard deviations are identical.
-
-```{r}
-datasaurus_dozen |>
-  ggplot(aes(x = x, colour = dataset)) +
-    geom_boxplot() +
-    theme_void() +
-    theme(legend.position = "none") +
-    facet_wrap(~dataset, ncol = 3)
-```
-
-```{r}
-datasaurus_dozen |>
-  ggplot(aes(x = y, colour = dataset))+
-    geom_boxplot()+
-    theme_void()+
-    theme(legend.position = "none")+
-    facet_wrap(~dataset, ncol = 3)
-```
-
-But you have to visualize all of the data with a scatter plot to really see the patterns.
-
-```{r fig.height=12, fig.width=9}
-datasaurus_dozen |> 
-  ggplot(aes(x = x, y = y, colour = dataset))+
-    geom_point()+
-    theme_void()+
-    theme(legend.position = "none")+
-    facet_wrap(~dataset, ncol = 3)
-```
 
 
