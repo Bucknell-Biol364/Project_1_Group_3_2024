@@ -14,8 +14,6 @@ First of all, you'll need to load all the packages that might be required for th
 
 ```{r Load Libraries, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-if (!require("datasauRus")) install.packages("datasauRus"); library(datasauRus)
-<<<<<<< HEAD
 
 if (!require("rstatix")) install.packages("rstatix"); library(rstatix) # contains the pairwise_t_test function
 if (!require("UsingR")) install.packages("UsingR"); library(UsingR) # For the simple.eda function
@@ -39,12 +37,19 @@ However, you'll have to make sure that your .Rmd project file and the data file 
 
 ```{r}
 colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv', show_col_types = FALSE)
-stressor <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/stressor.csv', show_col_types = FALSE)
 ```
 
 ## Colony dataset
 
+The bee colony dataset comes from the USDA (US Department of Agriculture).
+
 ### Description of the bee colony data
+
+Every year a significant number of bee colonies are being lost from each of the states in the US. Alarm over honeybee numbers began growing since 2006, when a phenomenon called "Colony collapse disorder" became widely known. This problem, in which the majority of worker bees abandon the colony, has since receded but beekeepers are now faced with more general die-offs linked to disease, pesticide use and habitat loss. 
+Since the higher losses has been noticed, agricultural agencies, researchers, and the beekeeping industry have been working together to understand why and develop best management practices to reduce their losses.
+A survey is done annually to highlight the continuing high rates of honey bee colony loss in each of the states.
+
+We chose this dataset to visualize and analyze the information regarding hone bee colonies and their losses.
 
 This dataset provides information on honey bee colonies in terms of number of colonies (colony_n), maximum (colony_max),lost (colony_lost), percent lost (colony_lost_pct), added (colony_added), renovated (colony_reno), and percent renovated (colony_reno_pct), as well as colonies lost with Colony Collapse Disorder symptoms with both over and less than five colonies. 
 
@@ -68,7 +73,7 @@ str(colony)
 summary(colony)
 ```
 
-In this case,, R has considered "year" as numeric data type (num), and "months" and "sate' as character (chr). 
+In this case, R has considered "year" as numeric data type (num), and "months" and "sate' as character (chr). 
 Since all of them are categorical variables as shown by the summary, they need to be converted as factors using the as.factor() function.
 
 In cases, where the data needed to be converted to a different data type other than factor, for example into character, then we could use the as.character() function. It works similarly for converting other data types.
@@ -132,38 +137,9 @@ summary(clean_colony)
 
 We can see that after removing NA's, the number of observations decreased from 1222 to 929. 
 
-
-```{r}
-str(stressor)
-head(stressor)
-tail(stressor)
-```
-
-```{r}
-stressor$year <- as.factor(stressor$year)
-stressor$months <- as.factor(stressor$months)
-stressor$state <- as.factor(stressor$state)
-stressor$stressor <- as.factor(stressor$stressor)
-
-str(stressor)
-```
-
-```{r}
-summary(stressor)
-=======
-if (!require("tidyverse")) install.packages("tidyverse"); library(tidyverse)
-if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
-if (!require("ggplot2")) install.packages("ggplot2"); library(ggplot2)
->>>>>>> cef1bca8db2627eb82b4879b432a2949c1197169
-```
-
-
-
-```{r}
-colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv')
-stressor <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/stressor.csv')
-```
 ## Data visualization (graphs!!)
+
+
 
 In order to really understand your data and the relationship between factors, it is important to be able to visualize them!
 
@@ -175,10 +151,6 @@ Let's say we are interested in if there's a specific state where many bee coloni
 
 
 ```{r}
-colony$year<-as.factor(colony$year)
-colony$months<-as.factor(colony$months)
-colony$state<-as.factor(colony$state)
-
 temp<-colony |> 
   na.omit(colony_lost)
 
@@ -221,6 +193,7 @@ ggplot(temp)+
   geom_jitter(alpha=.1) #you can choose to show all the data points underlying the boxplot with this function. It's often a good idea to be transparent with your data so this is often a good idea, but in this case I felt it just made the graph look messy, even when I used alpha to make them transparant. 
 
 ```
+
 However, this is still pretty hard to read, since there are so many states. While it makes sense initially to arrange them alphabetically, it might be better to range them in order of their medians. We can add use reorder() in the aes command to choose the order of our states. 
 
 ```{r}
@@ -301,10 +274,12 @@ ggplot(temp)+
   theme_classic()+
   scale_color_brewer(palette="OrRd")
 ```
+
 From this, we can see that the relationship is mostly linear--as more colonies are lost, more are added as well. However, there is also a pretty large "hump" hanging down below the 5.0 y-axis, suggesting there are places with pretty significant colony loss that don't add in new colonies. We can also see a small trend with the points from 2021 tending to be higher, suggesting that perhaps beekeepers are mobilizing to add more new colonies. 
 
 
 We can further test this trend by adding linear models for each year using geom_smooth. (Of course, you would want to be sure using a linear model is appropriate. We will assume it is for here.) You will want to include the argument "method="lm"" to tell it to use a linear model. Otherwise, it'll try to fit the with kinda funky, not-so-great to interpret curvy line. Se=false gets rid of messy error bars, though you may want these in some cases.
+
 ```{r}
 ggplot(temp)+  
   aes(x=log(colony_lost), y=log(colony_added), color=year)+ 
