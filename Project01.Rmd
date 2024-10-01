@@ -141,8 +141,6 @@ We can see that after removing NA's, the number of observations decreased from 1
 
 ## Data visualization (graphs!!)
 
-
-
 In order to really understand your data and the relationship between factors, it is important to be able to visualize them!
 
 R studio has some built-in plotting functions in the base, but most people seem to agree that using a package called ggplot2 is highly superior. We already loaded this in at the beginning of the tutorial. 
@@ -398,24 +396,25 @@ After all of that complicated and scary data exploration and analytics, you migh
 Let's assume we want to analyze data for states with high colony losses in the first quarter of 2015 (January-March) where the colony loss percentage (colony_lost_pct) is greater than 20%, because we want to find out which state is responsible for the honey shortage on the market during that period. Here's how you would go about filtering this data.
  
 # 1
-Making sure you have loaded "tidyverse" package, which we have done so in the very very beginning.However, just to make sure we have the package installed, loaded and running. 
+Making sure you have loaded "tidyverse" package, which we have done so in the very very beginning. However, just to make sure we have the package installed, loaded and running. 
 
 ```{r} 
 install.packages("tidyverse")
 library(dplyr)
 ```
-It seems like we have scured the dplyr package. 
+It seems like we have secured the dplyr package. 
 
 
 #2 understand your variables. 
 
-here we can use str() again to check out which variables we need to filter for our question. 
+Here we can use str() again to check out which variables we need to filter for our question. 
 
 
 ```{r}
 str(colony)
 
 ```
+
 We will focus on the months, state, and colony_lost_pct columns for filtering.
 
 #3 Applying filter
