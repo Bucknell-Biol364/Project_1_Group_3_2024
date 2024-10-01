@@ -1,7 +1,7 @@
 ---
 title: "Group Project 1"
 subtitle: "Biology 368/664 Bucknell University"
-output: pdf_document
+output: github_document
 authors: Victoria, Sweta and Kai - Group 3
 date: 14 Sep 2024
 ---
@@ -16,7 +16,6 @@ First of all, you'll need to load all the packages that might be required for th
 knitr::opts_chunk$set(echo = TRUE)
 
 if (!require("rstatix")) install.packages("rstatix"); library(rstatix) # contains the pairwise_t_test function
-if (!require("stats")) install.packages("stats"); library(rstatix) # used to run Shapiro test
 if (!require("UsingR")) install.packages("UsingR"); library(UsingR) # For the simple.eda function
 if (!require("cowplot")) install.packages("cowplot"); library(cowplot) # For clean graphs
 if (!require("readxl")) install.packages("readxl"); library(readxl) # For loading excel files
@@ -142,48 +141,7 @@ We can see that after removing NA's, the number of observations decreased from 1
 
 ## Data visualization (graphs!!)
 
-We have many numberic variables in our dataset. One easy way to visualize the numeric variables independently is using the "simple.eda" function. It means Simple Exploratory Data Analysis. 
-This function generates three graphs (Histogram, boxplot and Normal Q-Q plot) for each of the variables, and allows us to tell whether they are normally distributed or not.
 
-```{r}
-simple.eda(clean_colony$colony_n)
-simple.eda(clean_colony$colony_max)
-simple.eda(clean_colony$colony_lost)
-simple.eda(clean_colony$colony_lost_pct)
-
-```
-
-The graphs look pretty ugly for each of the four variables. 
-The graphs for the colonies lost (colony_lost) is better than the others, but it still is very skewed at the right end. These show that the data is not normally distributed at all.
-
-You should try the simple.eda for other remaining numeric variables and find out whether they are normally distributed or not:
-
-```{r}
-
-
-```
-
-Well, one other way to check whether the data is normally distributed or not is by conducting a Shapiro test. It's a good way to test for normality before conducting other statistical tests.
-
-```{r}
-shapiro.test(clean_colony$colony_n)
-```
-The value is too low which proves that the data is nor normally dsitributed.
-
-```{r}
-shapiro.test(clean_colony$colony_lost)
-```
-
-It's the same for colonies lost too.
-
-We want you to check the same tests for other numerical variables too.
-
-```{r}
-
-```
-
-
-### Visualizing relationship between two or more variables
 
 In order to really understand your data and the relationship between factors, it is important to be able to visualize them!
 
@@ -440,31 +398,30 @@ After all of that complicated and scary data exploration and analytics, you migh
 Let's assume we want to analyze data for states with high colony losses in the first quarter of 2015 (January-March) where the colony loss percentage (colony_lost_pct) is greater than 20%, because we want to find out which state is responsible for the honey shortage on the market during that period. Here's how you would go about filtering this data.
  
 # 1
-Making sure you have loaded "tidyverse" package, which we have done so in the very very beginning. However, just to make sure we have the package installed, loaded and running. 
+Making sure you have loaded "tidyverse" package, which we have done so in the very very beginning.However, just to make sure we have the package installed, loaded and running. 
 
 ```{r} 
 install.packages("tidyverse")
 library(dplyr)
 ```
-It seems like we have secured the dplyr package. 
+It seems like we have scured the dplyr package. 
 
 
 #2 understand your variables. 
 
-Here we can use str() again to check out which variables we need to filter for our question. 
+here we can use str() again to check out which variables we need to filter for our question. 
 
 
 ```{r}
 str(colony)
 
 ```
-
 We will focus on the months, state, and colony_lost_pct columns for filtering.
 
 #3 Applying filter
 
 We need to filter the data for:
-  1) Time period between January- March of 2015
+  1)Time period between January- March of 2015
   2) State with colony loss greater than 20%
   
 ```{r}
@@ -495,12 +452,12 @@ simple right?
 #Example 2
 Filter Rows by Multiple Conditions If you want to filter rows where the colony loss percentage is greater than 10% and the state is "Florida"
 ```{r}
-Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
+lorida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
 ```
 The filter() function is an essential tool when analyzing data in R. You can use it to isolate specific subsets of your data that are relevant to your analysis by defining conditions based on the values in your dataset's columns. Hope this demonstration of the filter function helped you. 
 
 
 *Acknowledgements*
 
-Kai worked on the data filtering section, Sweta wrote the initial data analysis, na removal and simple.eda, and Victoria did the visualization and linear modeling sections. 
+Kai worked on the data filtering section, Sweta wrote the initial data analysis and na removal, and Victoria did the visualization and linear modeling sections. 
 
