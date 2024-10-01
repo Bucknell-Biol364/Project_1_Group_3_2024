@@ -6,12 +6,13 @@ authors: Victoria, Sweta and Kai - Group 3
 date: 14 Sep 2024
 ---
 
+Hello! This is a tutorial meant to help you do some basic data analysis and make graphs using R Studio. We assume that you've already had R installed and updated and you may have had some experience in the past with coding in R. If not, there are many resources online to get you up to speed!
 
-This project will require you to develop a tutorial to teach Bucknell students how to use R for graphing and data analysis.
+We'll be giving a lot of examples from a dataset of bee colony loss across the United States, a recent and pressing ecological and agricultural problem. We've also included some areas for you to put your own understanding into practice and try to write your own code. 
 
 ## Loading the packages
 
-First of all, you'll need to load all the packages that might be required for the project.  
+First of all, you'll need to load all the packages that might be required for the project that will allow you to use certain functions.  
 
 ```{r Load Libraries, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
