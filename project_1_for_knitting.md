@@ -310,6 +310,78 @@ decreased from 1222 to 929.
 
 ## Data visualization (graphs!!)
 
+We have many numberic variables in our dataset. One easy way to
+visualize the numeric variables independently is using the “simple.eda”
+function. It means Simple Exploratory Data Analysis. This function
+generates three graphs (Histogram, boxplot and Normal Q-Q plot) for each
+of the variables, and allows us to tell whether they are normally
+distributed or not.
+
+``` r
+simple.eda(clean_colony$colony_n)
+```
+
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+simple.eda(clean_colony$colony_max)
+```
+
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+
+``` r
+simple.eda(clean_colony$colony_lost)
+```
+
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-10-3.png)<!-- -->
+
+``` r
+simple.eda(clean_colony$colony_lost_pct)
+```
+
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-10-4.png)<!-- -->
+
+The graphs look pretty ugly for each of the four variables. The graphs
+for the colonies lost (colony_lost) is better than the others, but it
+still is very skewed at the right end. These show that the data is not
+normally distributed at all.
+
+You should try the simple.eda for other remaining numeric variables and
+find out whether they are normally distributed or not:
+
+Well, one other way to check whether the data is normally distributed or
+not is by conducting a Shapiro test. It’s a good way to test for
+normality before conducting other statistical tests.
+
+``` r
+shapiro.test(clean_colony$colony_n)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  clean_colony$colony_n
+    ## W = 0.398, p-value < 2.2e-16
+
+The value is too low which proves that the data is nor normally
+dsitributed.
+
+``` r
+shapiro.test(clean_colony$colony_lost)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  clean_colony$colony_lost
+    ## W = 0.35265, p-value < 2.2e-16
+
+It’s the same for colonies lost too.
+
+We want you to check the same tests for other numerical variables too.
+
+### Visualizing relationship between two or more variables
+
 In order to really understand your data and the relationship between
 factors, it is important to be able to visualize them!
 
@@ -339,7 +411,7 @@ ggplot(clean_colony)+  #The name of the data frame you are using goes in the par
   geom_boxplot() #using geom_*** specifies which type of graph you want 
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 We’ve got a graph, but it looks pretty scary!!The axis titles are ugly,
 it’s impossible to read the state names, and the grid background is
@@ -369,7 +441,7 @@ ggplot(clean_colony)+
   geom_jitter(alpha=.1) #you can choose to show all the data points underlying the boxplot with this function. It's often a good idea to be transparent with your data so this is often a good idea, but in this case I felt it just made the graph look messy, even when I used alpha to make them transparant. 
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 However, this is still pretty hard to read, since there are so many
 states. While it makes sense initially to arrange them alphabetically,
@@ -388,7 +460,7 @@ ggplot(clean_colony)+
   theme_classic(base_size = 9)
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 We can see that there is a range of loss across states, with New England
 having some of the smallest losses while states like California and
@@ -407,7 +479,7 @@ ggplot(clean_colony)+
   theme_classic(base_size = 9)
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 However, the number of colonies lost may not be the best metric of which
 states are actually the most affected, since some states may simply have
@@ -438,7 +510,7 @@ ggplot(clean_colony)+
   theme_classic(base_size = 9)
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 However, it’s pretty nightmarish to try to read, and though we can still
 get a general idea of the trends it overall gives less information than
@@ -473,7 +545,7 @@ ggplot(clean_colony)+
   scale_color_brewer(palette="OrRd")
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 From this, we can see that the relationship is mostly linear–as more
 colonies are lost, more are added as well. However, there is also a
@@ -504,7 +576,7 @@ ggplot(clean_colony)+
 
     ## `geom_smooth()` using formula = 'y ~ x'
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 The y-intercept for 2021 is highest, suggesting a greater number of
 colonies is being added compared to those being lost.
@@ -563,7 +635,7 @@ residuals from a common line.
 plot(lmbee)
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-20-3.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-20-4.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-25-2.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-25-3.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-25-4.png)<!-- -->
 In a well-fitting model, the points should fall on the plotted line.
 Some variation is to be expected, though, it may be helpful to do a log
 transformation on the loss percentage variable.
@@ -601,7 +673,7 @@ summary(lmbeelog)
 plot(lmbeelog)
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-21-3.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-21-4.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-26-2.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-26-3.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-26-4.png)<!-- -->
 
 We can see that this improves the deviating upper tail a bit.
 
@@ -677,7 +749,7 @@ summary(tukey)
     ## Linear Hypotheses:
     ##                   Estimate Std. Error z value Pr(>|z|)
     ## 2016 - 2015 == 0  0.003952   0.083626   0.047    1.000
-    ## 2017 - 2015 == 0 -0.132689   0.078622  -1.688    0.621
+    ## 2017 - 2015 == 0 -0.132689   0.078622  -1.688    0.622
     ## 2018 - 2015 == 0  0.001867   0.078622   0.024    1.000
     ## 2019 - 2015 == 0  0.035979   0.086981   0.414    1.000
     ## 2020 - 2015 == 0 -0.167824   0.079258  -2.117    0.339
@@ -685,8 +757,8 @@ summary(tukey)
     ## 2017 - 2016 == 0 -0.136641   0.083148  -1.643    0.651
     ## 2018 - 2016 == 0 -0.002085   0.083148  -0.025    1.000
     ## 2019 - 2016 == 0  0.032027   0.091092   0.352    1.000
-    ## 2020 - 2016 == 0 -0.171776   0.083750  -2.051    0.380
-    ## 2021 - 2016 == 0 -0.243720   0.100018  -2.437    0.182
+    ## 2020 - 2016 == 0 -0.171776   0.083750  -2.051    0.379
+    ## 2021 - 2016 == 0 -0.243720   0.100018  -2.437    0.181
     ## 2018 - 2017 == 0  0.134556   0.078113   1.723    0.598
     ## 2019 - 2017 == 0  0.168668   0.086521   1.949    0.445
     ## 2020 - 2017 == 0 -0.035135   0.078753  -0.446    0.999
@@ -785,7 +857,7 @@ summary(lmbeenew)
 plot(lmbeenew)
 ```
 
-![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-24-2.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-24-3.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-24-4.png)<!-- -->
+![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-29-3.png)<!-- -->![](project_1_for_knitting_files/figure-gfm/unnamed-chunk-29-4.png)<!-- -->
 
 The qqplot seems ok.
 
@@ -826,21 +898,21 @@ summary(tukey2)
     ## Linear Hypotheses:
     ##                   Estimate Std. Error z value Pr(>|z|)  
     ## 2016 - 2015 == 0  0.039559   0.067179   0.589   0.9971  
-    ## 2017 - 2015 == 0 -0.128003   0.063328  -2.021   0.3969  
+    ## 2017 - 2015 == 0 -0.128003   0.063328  -2.021   0.3970  
     ## 2018 - 2015 == 0  0.004269   0.063139   0.068   1.0000  
-    ## 2019 - 2015 == 0 -0.117714   0.071211  -1.653   0.6437  
-    ## 2020 - 2015 == 0 -0.166205   0.063755  -2.607   0.1218  
-    ## 2021 - 2015 == 0 -0.091855   0.079176  -1.160   0.9074  
-    ## 2017 - 2016 == 0 -0.167562   0.067150  -2.495   0.1586  
+    ## 2019 - 2015 == 0 -0.117714   0.071211  -1.653   0.6438  
+    ## 2020 - 2015 == 0 -0.166205   0.063755  -2.607   0.1217  
+    ## 2021 - 2015 == 0 -0.091855   0.079176  -1.160   0.9075  
+    ## 2017 - 2016 == 0 -0.167562   0.067150  -2.495   0.1582  
     ## 2018 - 2016 == 0 -0.035290   0.066953  -0.527   0.9984  
-    ## 2019 - 2016 == 0 -0.157273   0.074955  -2.098   0.3498  
-    ## 2020 - 2016 == 0 -0.205764   0.067508  -3.048   0.0364 *
-    ## 2021 - 2016 == 0 -0.131414   0.082058  -1.601   0.6776  
-    ## 2018 - 2017 == 0  0.132272   0.062728   2.109   0.3438  
+    ## 2019 - 2016 == 0 -0.157273   0.074955  -2.098   0.3495  
+    ## 2020 - 2016 == 0 -0.205764   0.067508  -3.048   0.0368 *
+    ## 2021 - 2016 == 0 -0.131414   0.082058  -1.601   0.6779  
+    ## 2018 - 2017 == 0  0.132272   0.062728   2.109   0.3435  
     ## 2019 - 2017 == 0  0.010289   0.070433   0.146   1.0000  
     ## 2020 - 2017 == 0 -0.038202   0.063143  -0.605   0.9966  
     ## 2021 - 2017 == 0  0.036148   0.079688   0.454   0.9993  
-    ## 2019 - 2018 == 0 -0.121983   0.070593  -1.728   0.5930  
+    ## 2019 - 2018 == 0 -0.121983   0.070593  -1.728   0.5931  
     ## 2020 - 2018 == 0 -0.170474   0.063160  -2.699   0.0966 .
     ## 2021 - 2018 == 0 -0.096124   0.079201  -1.214   0.8874  
     ## 2020 - 2019 == 0 -0.048491   0.070901  -0.684   0.9934  
@@ -878,7 +950,7 @@ during that period. Here’s how you would go about filtering this data.
 # 1
 
 Making sure you have loaded “tidyverse” package, which we have done so
-in the very very beginning.However, just to make sure we have the
+in the very very beginning. However, just to make sure we have the
 package installed, loaded and running.
 
 ``` r
@@ -891,11 +963,11 @@ install.packages("tidyverse")
 library(dplyr)
 ```
 
-It seems like we have scured the dplyr package.
+It seems like we have secured the dplyr package.
 
 \#2 understand your variables.
 
-here we can use str() again to check out which variables we need to
+Here we can use str() again to check out which variables we need to
 filter for our question.
 
 ``` r
@@ -933,7 +1005,7 @@ filtering.
 
 \#3 Applying filter
 
-We need to filter the data for: 1)Time period between January- March of
+We need to filter the data for: 1) Time period between January- March of
 2015 2) State with colony loss greater than 20%
 
 ``` r
@@ -987,7 +1059,7 @@ rows where the colony loss percentage is greater than 10% and the state
 is “Florida”
 
 ``` r
-lorida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
+Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
 ```
 
 The filter() function is an essential tool when analyzing data in R. You
@@ -999,5 +1071,5 @@ you.
 *Acknowledgements*
 
 Kai worked on the data filtering section, Sweta wrote the initial data
-analysis and na removal, and Victoria did the visualization and linear
-modeling sections.
+analysis, na removal and simple.eda, and Victoria did the visualization
+and linear modeling sections.
