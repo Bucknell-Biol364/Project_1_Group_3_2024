@@ -388,9 +388,73 @@ Be sure to set your cutoff p-value before running the tests. R automatically use
 
 If significance is found, follow up with a tukey test.
 
+
+
+
+#Filtering Data
+
+After all of that complicated and scary data exploration and analytics, you might still have questions about the data set. filter() is a great code you can use to filter out the data to create a subset of variables appropriate to analyze your remaining questions. 
+
+Let's assume we want to analyze data for states with high colony losses in the first quarter of 2015 (January-March) where the colony loss percentage (colony_lost_pct) is greater than 20%, because we want to find out which state is responsible for the honey shortage on the market during that period. Here's how you would go about filtering this data.
+ 
+# 1
+Making sure you have loaded "tidyverse" package, which we have done so in the very very beginning.However, just to make sure we have the package installed, loaded and running. 
+
+```{r} 
+install.packages("tidyverse")
+library(dplyr)
+```
+It seems like we have scured the dplyr package. 
+
+
+#2 understand your variables. 
+
+here we can use str() again to check out which variables we need to filter for our question. 
+
+
 ```{r}
+str(colony)
 
 ```
+We will focus on the months, state, and colony_lost_pct columns for filtering.
+
+#3 Applying filter
+
+We need to filter the data for:
+  1)Time period between January- March of 2015
+  2) State with colony loss greater than 20%
+  
+```{r}
+# Filter for January-March 2015 and colony loss percentage greater than 20%
+filtered_colony2015 = colony[(colony[["year"]] == 2015) & 
+                        (colony[["months"]] == "January-March") & 
+                        (colony[["colony_lost_pct"]] > 20), ]
+
+# Display the filtered dataset
+print(filtered_colony2015)
+
+```
+This is a good way to filter data set for complex questions as we stated above. Or, if you have a simplier questions such as: 
+
+
+
+
+#Example 1
+Filter Rows by a Single Condition If you want to filter the data for records where the state is "California"
+```{r}
+california_data <- filter(colony, state == "California")
+
+```
+simple right? 
+
+
+
+#Example 2
+Filter Rows by Multiple Conditions If you want to filter rows where the colony loss percentage is greater than 10% and the state is "Florida"
+```{r}
+lorida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
+```
+The filter() function is an essential tool when analyzing data in R. You can use it to isolate specific subsets of your data that are relevant to your analysis by defining conditions based on the values in your dataset's columns. Hope this demonstration of the filter function helped you. 
 
 
 ## Introduction
