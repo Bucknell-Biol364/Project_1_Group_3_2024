@@ -434,7 +434,7 @@ filtered_colony2015 = colony[(colony[["year"]] == 2015) &
 print(filtered_colony2015)
 
 ```
-This is a good way to filter data set for complex questions as we stated above. Or, if you have a simplier questions such as: 
+This is a good way to filter data set for complex questions as we stated above. Or, if you have simpler questions such as those below.
 
 
 
@@ -457,48 +457,7 @@ lorida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
 The filter() function is an essential tool when analyzing data in R. You can use it to isolate specific subsets of your data that are relevant to your analysis by defining conditions based on the values in your dataset's columns. Hope this demonstration of the filter function helped you. 
 
 
-## Introduction
+*Acknowledgements*
 
-Begin by introducing yourself to your group. 
-Then discuss the biggest challenge that you have faced during the first three weeks of this course.
-Determine if there are any common threads in these challenges and start to think about objectives for the tutorial.
-
-## Target Audience
-
-Discuss with your group the target audience for the tutorial. 
-Examples could be a new student in Biology 364/664, a student in one of the new core Biology classes (201, 202, 203, or 204), a student in another 300-level Biology course (not 364), or a new student in one of the Bucknell research groups. 
-
-Edit the README.md file in your group's repository to reflect your plan.
-
-## Objectives
-
-After deciding on the target audience for your tutorial determine 2 to 3 overall objectives for your tutorial (one per member of your group). 
-These should be high-level objectives that are important skills for your target audience.
-Check with Prof. Field to see if they are appropriate and then add them to your README.md file.
-
-Identify at least 2 goals within each objective and add them to your README.md file.
-These should be goals that someone who is working through the tutorial can self-asses.
-For example, "to demostrate that you can test a hypothesis using a statistical model, the student should use a T test, linear model, or other test and interpret the p value appropriately."
-
-## Grading
-
-Each group will be expected to complete the following tasks to earn 85% of the points available for this assignment (21/25).
-
-- Identify and obtain suitable dataset
-- Use a Github repository and version control to collaborate on the project
-  + Every member of the group should participate in editing the repo
-- Spend 4-6 hours preparing, coding, and testing tutorial
-  + Data exploration
-  + Data visualization
-  + Hypothesis testing
-- Present tutorial in class
-- Provide public archive suitable for sharing to students/faculty
-
-Tutorials from previous classes can be viewed at our public github site: https://github.com/Bucknell-Biol364
-
-Each group should use an *Acknowledgements* section to document the participation of each member and the collaboration within and between groups.
-
-Additional credit will be awarded for providing assistance to other groups or for the development of a tutorial that goes beyond the minimal expectations listed above.
-You will have the opportunity to provide feedback to another group after the initial deadline (like for Homework 02).
-
+Kai worked on the data filtering section, Sweta wrote the initial data analysis and na removal, and Victoria did the visualization and linear modeling sections. 
 
