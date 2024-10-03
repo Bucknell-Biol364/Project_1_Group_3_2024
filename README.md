@@ -1,5 +1,7 @@
 # Project_1 R Tutorial
 
+!!!!!LOOK AT THE PROJECT_FOR_KNITTING_FINAL FOR THE MOST UPDATED VERSION OF THE PROJECT!!!
+
 ## Authors
 - Sweta Aryal
 -Victoria Abramczuk
