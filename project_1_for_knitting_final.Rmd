@@ -12,8 +12,10 @@ We'll be giving a lot of examples from a dataset of bee colony loss across the U
 
 There are a couple of objectives for you to follow along with in this assignment: 
 
-1. To be able to explore data within a dataset based on the data type               to be able to convert variables into different type
+1. To be able to explore data within a dataset based on the data type 
+      to be able to convert variables into different type
       to be able to identify outliers, messy data, or non-normal distributions
+      to be able to log transform the variables to visualize them better
       
 2. To use filter to create a subset of a variable appropriate to your analysis question
 
@@ -70,9 +72,12 @@ Every year a significant number of bee colonies are being lost from each of the 
 Since the higher losses has been noticed, agricultural agencies, researchers, and the beekeeping industry have been working together to understand why and develop best management practices to reduce their losses.
 A survey is done annually to highlight the continuing high rates of honey bee colony loss in each of the states.
 
-We chose this dataset to visualize and analyze the information regarding hone bee colonies and their losses.
-
 This dataset provides information on honey bee colonies in terms of number of colonies (colony_n), maximum (colony_max),lost (colony_lost), percent lost (colony_lost_pct), added (colony_added), renovated (colony_reno), and percent renovated (colony_reno_pct), as well as colonies lost with Colony Collapse Disorder symptoms with both over and less than five colonies. 
+
+We chose this dataset because: 
+1. It is a large dataset, so it can be beneficial to make many hypothesis and visualize and analyze the information regarding hone bee colonies and their losses.
+2. No background knowledge/information is required to understand the dataset; it's simple and easy to understand just by reading the description provided above (and looking at our variables).
+3. It contains both categorical and numerical variables such that we can different graphs and perform different statistical tests accordingly.
 
 
 ## Data Exploration
@@ -134,13 +139,14 @@ nrow(colony)
 ncol(colony)
 ```
 
-Checking the number of rows and columns is just another way to check the number of observations you have (you can see them in the structyre too.)
+Checking the number of rows and columns is just another way to check the number of observations you have (you can see them in the structure too.)
 
 ## Creating a clean dataset
 
 Clean dataset refers to creating a new dataset by removing rows or columns that might not be required for data analysis. 
 
 We will only remove the NA's (missing values) for now. It is often necessary do so because they can interfere with data analysis, but honestly, it depends on the context.
+
 For example: Removing the NA's will make sure that the statistical functions run smoothly, it will avoid incorrect results for certain models, like regression, which requires the missing data to be well handled. This might lead to more reliable interpretations.
 But at the same time, deleting rows with NA will reduce the sample size which might causing the analysis to lose statistical power. In cases where NA's are not random, removing them might bias the results, especially if missing data is systematically related to certain variables.
 
@@ -148,7 +154,7 @@ Here we are using the pipe function, or |> . This is neat trick that can be used
 
 ```{r}
 clean_colony <- colony |> 
-  drop_na(colony_n:colony_reno_pct) 
+  drop_na(colony_n:colony_reno_pct) # the : sign is used to select the all the columns from colony_n to the last column colony_reno_pct. Only use that sign if you want to drop NA's of all the columns existing between them.
 ```
 
 The drop_na() function removes rows where any column contains NA's. In this dataset, there were no NA's in the first three columns, so we assigned the function to the remaining columns. 
@@ -162,7 +168,8 @@ We can see that after removing NA's, the number of observations decreased from 1
 
 
 #Filtering Data
-Besides dropping nas, using the filter function can be another strategy to create clean datasets and eliminate irrelevant information. 
+
+Besides dropping NA's, using the filter function can be another strategy to create clean datasets and eliminate irrelevant information. 
 
 After all of that complicated and scary data exploration, you might still have questions about the data set. filter() is a great code you can use to filter out the data to create a subset of variables appropriate to analyze your remaining questions. 
 
@@ -199,85 +206,24 @@ print(filtered_colony2015)
 This is a good way to filter data set for complex questions as we stated above. Or, if you have simpler questions such as those below.
 
 
-
-
 #Example 1
+
 Filter Rows by a Single Condition If you want to filter the data for records where the state is "California"
 ```{r}
 california_data <- filter(colony, state == "California")
 
 ```
+
 simple right? 
 
 
-
 #Example 2
+
 Filter Rows by Multiple Conditions If you want to filter rows where the colony loss percentage is greater than 10% and the state is "Florida"
 ```{r}
 Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
 ```
 
-The filter() function is an essential tool when analyzing data in R. You can use it to isolate specific subsets of your data that are relevant to your analysis by defining conditions based on the values in your dataset's columns. Hope this demonstration of the filter function helped you. 
-
-
-
-#Filtering Data
-
-After all of that complicated and scary data exploration and analytics, you might still have questions about the data set. filter() is a great code you can use to filter out the data to create a subset of variables appropriate to analyze your remaining questions. It will eliminate rows (NOT columns) that do not contain the arguments you provide.
-
-Let's assume we want to analyze data for states with high colony losses in the first quarter of 2015 (January-March) where the colony loss percentage (colony_lost_pct) is greater than 20%, because we want to find out which state is responsible for the honey shortage on the market during that period. Here's how you would go about filtering this data.
- 
-#1 understand your variables. 
-
-Here we can use str() again to check out which variables we need to filter for our question. 
-
-
-```{r}
-str(colony)
-
-```
-
-We will focus on the months, state, and colony_lost_pct columns for filtering.
-
-#3 Applying filter
-
-We need to filter the data for:
-  1) Time period between January- March of 2015
-  2) State with colony loss greater than 20%
-  
-```{r}
-# Filter for January-March 2015 and colony loss percentage greater than 20%
-filtered_colony2015 = colony[(colony[["year"]] == 2015) & 
-                        (colony[["months"]] == "January-March") & 
-                        (colony[["colony_lost_pct"]] > 20), ]
-
-# Display the filtered dataset
-print(filtered_colony2015)
-
-```
-This is a good way to filter data set for complex questions as we stated above. Or, if you have simpler questions such as those below.
-
-
-
-
-#Example 1
-Filter Rows by a Single Condition If you want to filter the data for records where the state is "California"
-
-You can use == to say "equals", and "!=" to say do not include. 
-
-```{r}
-california_data <- filter(colony, state == "California")
-
-```
-simple right? 
-
-
-
-#Example 2
-Filter Rows by Multiple Conditions If you want to filter rows where the colony loss percentage is greater than 10% and the state is "Florida"
-```{r}
-Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
-```
 The filter() function is an essential tool when analyzing data in R. You can use it to isolate specific subsets of your data that are relevant to your analysis by defining conditions based on the values in your dataset's columns. Hope this demonstration of the filter function helped you. 
 
 
@@ -330,6 +276,72 @@ We want you to check the same tests for other numerical variables too.
 ```{r}
 
 ```
+
+# Log transformation of the data
+
+Since the graphs generated from the simlple.eda were very boring and not justifiable enough. We can log transform them for better visualization and analysis. We use the log10 function for that.
+
+We can use the mutate() function for that. The mutate() function exists to compute transformations of variables in a data frame.
+
+```{r}
+clean_colony <- clean_colony |> 
+  mutate(clean_colony, log.colony_n = log10(colony_n), log.colony_max = log10(colony_max)) #using the mutate function to incorporate the log value to the number of colonies and the maximum colonies to transform them
+summary(clean_colony) #checking the summary after the log transformation allows you to observe/view the "log.colon_n" and "log.colony_max" as new columns in the dataframe.
+        
+```
+
+You could use the variables one by one in the above code, or all the  variables that needs to be log transformed together in a single code using the coma(,) to separate the variables like shown above. 
+
+For practice, you can either add the formulas for remaining variables in the chunk provided above or just write them again below:
+
+
+```{r}
+
+```
+
+Make sure to check the summary again to ensure that the new log transformations are successful.
+
+Now that we have log transformed the data, we want you to conduct the exploratory analysis again to see if you notice any difference after the log transformation.
+We have done one for you using the colony_n variable.
+
+```{r}
+simple.eda(clean_colony$log.colony_n)
+simple.eda(clean_colony$log.colony_max)
+
+```
+
+As you can see that the graphs have incredibly improved after the log transformation for both the variables. 
+We want to check using the Shapiro test again to make sure the transformation was successful.
+
+```{r}
+shapiro.test(clean_colony$log.colony_n)
+shapiro.test(clean_colony$log.colony_max)
+
+```
+
+Well, surprisingly, the Shapiro test still yields undesired result.The p-value must have been greater than 0.05 to provide 95% confidence that the data is normally distributed. 
+Since it's a very large dataset and we have performed other statistical tests down below, this does not really matter. 
+
+However, we still want you to see if the log transformations helped the other numeric variables. 
+
+```{r}
+
+
+
+
+```
+
+
+Try running Shapiro tests for them too: 
+
+```{r}
+
+
+
+```
+
+
+Do you see any significant difference between the old and the new graphs? Do the new ones look more normally distributed?  What about the p-value in the Shapiro test?
 
 
 ### Visualizing relationship between two or more variables
@@ -599,7 +611,7 @@ If significance is found, follow up with a tukey test.
 Thank you for following the tutorial! I hoped you learned something new!
 
 *Acknowledgements*
-
-Kai worked on the data filtering section, Sweta wrote the initial data analysis, na removal and simple.eda, and Victoria did the visualization and linear modeling sections. 
+ 
+Kai worked on the data filtering section, Sweta wrote the initial data analysis, NA removal, simple.eda, log transformation and Shapiro tests, and Victoria did the visualization and linear modeling sections. 
 
 
