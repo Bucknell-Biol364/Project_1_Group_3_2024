@@ -13,6 +13,28 @@ across the United States, a recent and pressing ecological and
 agricultural problem. We’ve also included some areas for you to put your
 own understanding into practice and try to write your own code.
 
+There are a couple of objectives for you to follow along with in this
+assignment:
+
+1.  To be able to explore data within a dataset based on the data type
+    to be able to convert variables into different type to be able to
+    identify outliers, messy data, or non-normal distributions to be
+    able to log transform the variables to visualize them better
+
+2.  To use filter to create a subset of a variable appropriate to your
+    analysis question
+
+3.  To create appropriate and clear graphs to visualize data in both
+    categorical and numeric variables represented in the hypothesis
+    using ggplot2 to be able to create a scatterplot and box and whisker
+    plot to be able to edit labels and change the style to fit their
+    preferences to able to interpret the plot
+
+4.  To use an anova and linear model to help us interpret variables in
+    our provided hypothesis to be able to create a linear model to be
+    able to do follow up anova and tukey tests to be able to interpret
+    the results from these tests
+
 ## Loading the packages
 
 First of all, you’ll need to load all the packages that might be
@@ -50,15 +72,21 @@ develop best management practices to reduce their losses. A survey is
 done annually to highlight the continuing high rates of honey bee colony
 loss in each of the states.
 
-We chose this dataset to visualize and analyze the information regarding
-hone bee colonies and their losses.
-
 This dataset provides information on honey bee colonies in terms of
 number of colonies (colony_n), maximum (colony_max),lost (colony_lost),
 percent lost (colony_lost_pct), added (colony_added), renovated
 (colony_reno), and percent renovated (colony_reno_pct), as well as
 colonies lost with Colony Collapse Disorder symptoms with both over and
 less than five colonies.
+
+We chose this dataset because: 1. It is a large dataset, so it can be
+beneficial to make many hypothesis and visualize and analyze the
+information regarding hone bee colonies and their losses. 2. No
+background knowledge/information is required to understand the dataset;
+it’s simple and easy to understand just by reading the description
+provided above (and looking at our variables). 3. It contains both
+categorical and numerical variables such that we can different graphs
+and perform different statistical tests accordingly.
 
 ## Data Exploration
 
@@ -250,7 +278,7 @@ ncol(colony)
     ## [1] 10
 
 Checking the number of rows and columns is just another way to check the
-number of observations you have (you can see them in the structyre too.)
+number of observations you have (you can see them in the structure too.)
 
 ## Creating a clean dataset
 
@@ -259,15 +287,16 @@ columns that might not be required for data analysis.
 
 We will only remove the NA’s (missing values) for now. It is often
 necessary do so because they can interfere with data analysis, but
-honestly, it depends on the context. For example: Removing the NA’s will
-make sure that the statistical functions run smoothly, it will avoid
-incorrect results for certain models, like regression, which requires
-the missing data to be well handled. This might lead to more reliable
-interpretations. But at the same time, deleting rows with NA will reduce
-the sample size which might causing the analysis to lose statistical
-power. In cases where NA’s are not random, removing them might bias the
-results, especially if missing data is systematically related to certain
-variables.
+honestly, it depends on the context.
+
+For example: Removing the NA’s will make sure that the statistical
+functions run smoothly, it will avoid incorrect results for certain
+models, like regression, which requires the missing data to be well
+handled. This might lead to more reliable interpretations. But at the
+same time, deleting rows with NA will reduce the sample size which might
+causing the analysis to lose statistical power. In cases where NA’s are
+not random, removing them might bias the results, especially if missing
+data is systematically related to certain variables.
 
 Here we are using the pipe function, or \|\> . This is neat trick that
 can be used with some r commands (not all of them unfortunately) to
@@ -276,7 +305,7 @@ line”.
 
 ``` r
 clean_colony <- colony |> 
-  drop_na(colony_n:colony_reno_pct) 
+  drop_na(colony_n:colony_reno_pct) # the : sign is used to select the all the columns from colony_n to the last column colony_reno_pct. Only use that sign if you want to drop NA's of all the columns existing between them.
 ```
 
 The drop_na() function removes rows where any column contains NA’s. In
@@ -316,38 +345,163 @@ summary(clean_colony)
 We can see that after removing NA’s, the number of observations
 decreased from 1222 to 929.
 
+\#Filtering Data
+
+Besides dropping NA’s, using the filter function can be another strategy
+to create clean datasets and eliminate irrelevant information.
+
+After all of that complicated and scary data exploration, you might
+still have questions about the data set. filter() is a great code you
+can use to filter out the data to create a subset of variables
+appropriate to analyze your remaining questions.
+
+Let’s assume we want to analyze data for states with high colony losses
+in the first quarter of 2015 (January-March) where the colony loss
+percentage (colony_lost_pct) is greater than 20%, because we want to
+find out which state is responsible for bee colony loss. Here’s how you
+would go about filtering this data.
+
+\#1 understand your variables.
+
+Here we can use str() again to check out which variables we need to
+filter for our question.
+
+``` r
+str(colony)
+```
+
+    ## spc_tbl_ [1,222 × 10] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+    ##  $ year           : Factor w/ 7 levels "2015","2016",..: 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ months         : Factor w/ 4 levels "April-June","January-March",..: 2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ state          : Factor w/ 47 levels "Alabama","Arizona",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ colony_n       : num [1:1222] 7000 35000 13000 1440000 3500 3900 305000 104000 10500 81000 ...
+    ##  $ colony_max     : num [1:1222] 7000 35000 14000 1690000 12500 3900 315000 105000 10500 88000 ...
+    ##  $ colony_lost    : num [1:1222] 1800 4600 1500 255000 1500 870 42000 14500 380 3700 ...
+    ##  $ colony_lost_pct: num [1:1222] 26 13 11 15 12 22 13 14 4 4 ...
+    ##  $ colony_added   : num [1:1222] 2800 3400 1200 250000 200 290 54000 47000 3400 2600 ...
+    ##  $ colony_reno    : num [1:1222] 250 2100 90 124000 140 NA 25000 9500 760 8000 ...
+    ##  $ colony_reno_pct: num [1:1222] 4 6 1 7 1 NA 8 9 7 9 ...
+    ##  - attr(*, "spec")=
+    ##   .. cols(
+    ##   ..   year = col_double(),
+    ##   ..   months = col_character(),
+    ##   ..   state = col_character(),
+    ##   ..   colony_n = col_double(),
+    ##   ..   colony_max = col_double(),
+    ##   ..   colony_lost = col_double(),
+    ##   ..   colony_lost_pct = col_double(),
+    ##   ..   colony_added = col_double(),
+    ##   ..   colony_reno = col_double(),
+    ##   ..   colony_reno_pct = col_double()
+    ##   .. )
+    ##  - attr(*, "problems")=<externalptr>
+
+We will focus on the months, state, and colony_lost_pct columns for
+filtering.
+
+\#2 Applying filter
+
+We need to filter the data for: 1) Time period between January- March of
+2015 2) State with colony loss greater than 20%
+
+``` r
+# Filter for January-March 2015 and colony loss percentage greater than 20%
+filtered_colony2015 = colony[(colony[["year"]] == 2015) & 
+                        (colony[["months"]] == "January-March") & 
+                        (colony[["colony_lost_pct"]] > 20), ]
+
+# Display the filtered dataset
+print(filtered_colony2015)
+```
+
+    ## # A tibble: 18 × 10
+    ##    year  months        state     colony_n colony_max colony_lost colony_lost_pct
+    ##    <fct> <fct>         <fct>        <dbl>      <dbl>       <dbl>           <dbl>
+    ##  1 2015  January-March Alabama       7000       7000        1800              26
+    ##  2 2015  January-March Connecti…     3900       3900         870              22
+    ##  3 2015  January-March Illinois      6000      10500        4200              40
+    ##  4 2015  January-March Indiana       9000       9500        2100              22
+    ##  5 2015  January-March Kansas        4600       7000        1600              23
+    ##  6 2015  January-March Kentucky      7500      10500        4100              39
+    ##  7 2015  January-March Maryland      7500      10000        4100              41
+    ##  8 2015  January-March Massachu…     2900       4600        1000              22
+    ##  9 2015  January-March New York     27000      30000        6500              22
+    ## 10 2015  January-March North Ca…    24000      26000        7000              27
+    ## 11 2015  January-March Ohio         18000      22000       10500              48
+    ## 12 2015  January-March Oklahoma      9500      26000        6000              23
+    ## 13 2015  January-March Pennsylv…    14000      21000        6500              31
+    ## 14 2015  January-March Tennessee     9500       9500        2000              21
+    ## 15 2015  January-March Virginia      8000       9000        2500              28
+    ## 16 2015  January-March West Vir…     4700       6000        1800              30
+    ## 17 2015  January-March Wisconsin    16500      29000        8000              28
+    ## 18 2015  January-March Other St…     3410       8990        2080              23
+    ## # ℹ 3 more variables: colony_added <dbl>, colony_reno <dbl>,
+    ## #   colony_reno_pct <dbl>
+
+This is a good way to filter data set for complex questions as we stated
+above. Or, if you have simpler questions such as those below.
+
+\#Example 1
+
+Filter Rows by a Single Condition If you want to filter the data for
+records where the state is “California”
+
+``` r
+california_data <- filter(colony, state == "California")
+```
+
+simple right?
+
+\#Example 2
+
+Filter Rows by Multiple Conditions If you want to filter rows where the
+colony loss percentage is greater than 10% and the state is “Florida”
+
+``` r
+Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
+```
+
+The filter() function is an essential tool when analyzing data in R. You
+can use it to isolate specific subsets of your data that are relevant to
+your analysis by defining conditions based on the values in your
+dataset’s columns. Hope this demonstration of the filter function helped
+you.
+
+Test it out yourself by using the filter() function to create a data
+frame with only rows from the state of Pennslyvania.
+
 ## Data visualization (graphs!!)
 
-We have many numberic variables in our dataset. One easy way to
-visualize the numeric variables independently is using the “simple.eda”
-function. It means Simple Exploratory Data Analysis. This function
-generates three graphs (Histogram, boxplot and Normal Q-Q plot) for each
-of the variables, and allows us to tell whether they are normally
-distributed or not.
+We have many numeric variables in our dataset. One easy way to visualize
+the numeric variables independently is using the “simple.eda” function.
+It means Simple Exploratory Data Analysis. This function generates three
+graphs (Histogram, boxplot and Normal Q-Q plot) for each of the
+variables, and allows us to tell whether they are normally distributed
+or not.
 
 ``` r
 simple.eda(clean_colony$colony_n)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 simple.eda(clean_colony$colony_max)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 ``` r
 simple.eda(clean_colony$colony_lost)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-10-3.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-15-3.png)<!-- -->
 
 ``` r
 simple.eda(clean_colony$colony_lost_pct)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-10-4.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-15-4.png)<!-- -->
 
 The graphs look pretty ugly for each of the four variables. The graphs
 for the colonies lost (colony_lost) is better than the others, but it
@@ -371,8 +525,11 @@ shapiro.test(clean_colony$colony_n)
     ## data:  clean_colony$colony_n
     ## W = 0.398, p-value < 2.2e-16
 
-The value is too low which proves that the data is nor normally
-dsitributed.
+The p-value is below 0.05, which suggests that the data is nor normally
+distributed. Generally, a low p-value tells you it is unlikely the
+results seen are due to chance. In this case, the hypothesis tested is
+that the data is NOT normal, therefore a p-value below 0.05 means there
+is a 95% confidence that the data is not normal.
 
 ``` r
 shapiro.test(clean_colony$colony_lost)
@@ -387,6 +544,112 @@ shapiro.test(clean_colony$colony_lost)
 It’s the same for colonies lost too.
 
 We want you to check the same tests for other numerical variables too.
+
+# Log transformation of the data
+
+Since the graphs generated from the simlple.eda were very boring and not
+justifiable enough. We can log transform them for better visualization
+and analysis. We use the log10 function for that.
+
+We can use the mutate() function for that. The mutate() function exists
+to compute transformations of variables in a data frame.
+
+``` r
+clean_colony <- clean_colony |> 
+  mutate(clean_colony, log.colony_n = log10(colony_n), log.colony_max = log10(colony_max)) #using the mutate function to incorporate the log value to the number of colonies and the maximum colonies to transform them
+summary(clean_colony) #checking the summary after the log transformation allows you to observe/view the "log.colon_n" and "log.colony_max" as new columns in the dataframe.
+```
+
+    ##    year                  months               state        colony_n      
+    ##  2015:153   April-June      :273   California    : 25   Min.   :   1600  
+    ##  2016:124   January-March   :216   Florida       : 25   1st Qu.:   8000  
+    ##  2017:157   July-September  :265   Oregon        : 25   Median :  17500  
+    ##  2018:157   October-December:175   Georgia       : 24   Mean   :  70448  
+    ##  2019:108                          Ohio          : 24   3rd Qu.:  57000  
+    ##  2020:152                          South Carolina: 24   Max.   :1440000  
+    ##  2021: 78                          (Other)       :782                    
+    ##    colony_max       colony_lost     colony_lost_pct  colony_added   
+    ##  Min.   :   1900   Min.   :    30   Min.   : 1.00   Min.   :    10  
+    ##  1st Qu.:   9500   1st Qu.:  1000   1st Qu.: 7.00   1st Qu.:   570  
+    ##  Median :  22000   Median :  2200   Median :10.00   Median :  2100  
+    ##  Mean   :  88477   Mean   :  9646   Mean   :11.46   Mean   : 10329  
+    ##  3rd Qu.:  78000   3rd Qu.:  7000   3rd Qu.:15.00   3rd Qu.:  7500  
+    ##  Max.   :1710000   Max.   :255000   Max.   :48.00   Max.   :250000  
+    ##                                                                     
+    ##   colony_reno     colony_reno_pct   log.colony_n   log.colony_max 
+    ##  Min.   :    20   Min.   : 1.000   Min.   :3.204   Min.   :3.279  
+    ##  1st Qu.:   420   1st Qu.: 2.000   1st Qu.:3.903   1st Qu.:3.978  
+    ##  Median :  1300   Median : 6.000   Median :4.243   Median :4.342  
+    ##  Mean   :  8952   Mean   : 9.075   Mean   :4.372   Mean   :4.461  
+    ##  3rd Qu.:  5000   3rd Qu.:12.000   3rd Qu.:4.756   3rd Qu.:4.892  
+    ##  Max.   :285000   Max.   :77.000   Max.   :6.158   Max.   :6.233  
+    ## 
+
+You could use the variables one by one in the above code, or all the
+variables that needs to be log transformed together in a single code
+using the coma(,) to separate the variables like shown above.
+
+For practice, you can either add the formulas for remaining variables in
+the chunk provided above or just write them again below:
+
+Make sure to check the summary again to ensure that the new log
+transformations are successful.
+
+Now that we have log transformed the data, we want you to conduct the
+exploratory analysis again to see if you notice any difference after the
+log transformation. We have done one for you using the colony_n
+variable.
+
+``` r
+simple.eda(clean_colony$log.colony_n)
+```
+
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+
+``` r
+simple.eda(clean_colony$log.colony_max)
+```
+
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
+
+As you can see that the graphs have incredibly improved after the log
+transformation for both the variables. We want to check using the
+Shapiro test again to make sure the transformation was successful.
+
+``` r
+shapiro.test(clean_colony$log.colony_n)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  clean_colony$log.colony_n
+    ## W = 0.95174, p-value < 2.2e-16
+
+``` r
+shapiro.test(clean_colony$log.colony_max)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  clean_colony$log.colony_max
+    ## W = 0.94898, p-value < 2.2e-16
+
+Well, surprisingly, the Shapiro test still yields undesired result.The
+p-value must have been greater than 0.05 to provide 95% confidence that
+the data is normally distributed. Since it’s a very large dataset and we
+have performed other statistical tests down below, this does not really
+matter.
+
+However, we still want you to see if the log transformations helped the
+other numeric variables.
+
+Try running Shapiro tests for them too:
+
+Do you see any significant difference between the old and the new
+graphs? Do the new ones look more normally distributed? What about the
+p-value in the Shapiro test?
 
 ### Visualizing relationship between two or more variables
 
@@ -419,7 +682,7 @@ ggplot(clean_colony)+  #The name of the data frame you are using goes in the par
   geom_boxplot() #using geom_*** specifies which type of graph you want 
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 We’ve got a graph, but it looks pretty scary!!The axis titles are ugly,
 it’s impossible to read the state names, and the grid background is
@@ -438,7 +701,7 @@ ggplot(clean_colony)+
   
   
   xlab("State") + #this fixes the labels so they say what we want
-  ylab("Colonies Lost")+
+  ylab("Colonies Lost/Year")+
   
   
   
@@ -449,7 +712,7 @@ ggplot(clean_colony)+
   geom_jitter(alpha=.1) #you can choose to show all the data points underlying the boxplot with this function. It's often a good idea to be transparent with your data so this is often a good idea, but in this case I felt it just made the graph look messy, even when I used alpha to make them transparant. 
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 However, this is still pretty hard to read, since there are so many
 states. While it makes sense initially to arrange them alphabetically,
@@ -468,7 +731,7 @@ ggplot(clean_colony)+
   theme_classic(base_size = 9)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 We can see that there is a range of loss across states, with New England
 having some of the smallest losses while states like California and
@@ -487,7 +750,7 @@ ggplot(clean_colony)+
   theme_classic(base_size = 9)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 However, the number of colonies lost may not be the best metric of which
 states are actually the most affected, since some states may simply have
@@ -518,7 +781,7 @@ ggplot(clean_colony)+
   theme_classic(base_size = 9)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 However, it’s pretty nightmarish to try to read, and though we can still
 get a general idea of the trends it overall gives less information than
@@ -544,16 +807,16 @@ if (!require("RColorBrewer")) install.packages("RColorBrewer"); library(RColorBr
     ## Loading required package: RColorBrewer
 
 ``` r
-ggplot(clean_colony)+  
+ggplot(clean_colony)+  # the general formatting is very similar to making the barplot
   aes(x=log(colony_lost), y=log(colony_added), color=year)+ 
-  geom_point()+ 
+  geom_point()+ #use geom_point to create a scatterplot
   xlab("Colonies Lost") +
   ylab("Colonies Added")+
   theme_classic()+
-  scale_color_brewer(palette="OrRd")
+  scale_color_brewer(palette="OrRd") #this calls in colorbrewer and tells it I want to use the OrRd palatte
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 From this, we can see that the relationship is mostly linear–as more
 colonies are lost, more are added as well. However, there is also a
@@ -569,7 +832,7 @@ model is appropriate. We will assume it is for here.) You will want to
 include the argument “method=”lm”” to tell it to use a linear model.
 Otherwise, it’ll try to fit the with kinda funky, not-so-great to
 interpret curvy line. Se=false gets rid of messy error bars, though you
-may want these in some cases.
+may want these in some cases to show how good the fit is.
 
 ``` r
 ggplot(clean_colony)+  
@@ -584,7 +847,7 @@ ggplot(clean_colony)+
 
     ## `geom_smooth()` using formula = 'y ~ x'
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 The y-intercept for 2021 is highest, suggesting a greater number of
 colonies is being added compared to those being lost.
@@ -603,7 +866,10 @@ experiment, we can’t really suggest causation, but we can test for
 correlations between factors.
 
 An easy way to test correlation is to use a linear model. We can start
-by looking at if the percentage lost varies by year
+by looking at if the percentage lost varies by year.
+
+We hypothesize that the percentage lost will increase by year, with
+newer years like 2021 being significantly higher than years like 2016.
 
 ``` r
 lmbee<-glm(colony_lost_pct~year, data=clean_colony)
@@ -643,7 +909,7 @@ residuals from a common line.
 plot(lmbee)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-25-2.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-25-3.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-25-4.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-36-2.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-36-3.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-36-4.png)<!-- -->
 In a well-fitting model, the points should fall on the plotted line.
 Some variation is to be expected, though, it may be helpful to do a log
 transformation on the loss percentage variable.
@@ -681,7 +947,7 @@ summary(lmbeelog)
 plot(lmbeelog)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-26-2.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-26-3.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-26-4.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-37-2.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-37-3.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-37-4.png)<!-- -->
 
 We can see that this improves the deviating upper tail a bit.
 
@@ -690,7 +956,12 @@ interpret the model further. While the summary function spits out some
 p-values, these can be inaccurate as they don’t account for error from
 repeating tests over many categories.
 
-Doing an Anova can provide more accurate p-values.
+Doing an Anova can provide more accurate p-values. In this case, the
+p-value represents the chance that null hypothesis is true. In the
+anova, the null hypothesis is that there is NOT a difference between the
+distribution of two groups. So, when we have a low p-value, it means
+that there is a very low chance that the two groups have the same
+distribution and thus they are different!
 
 ``` r
 anova(lmbeelog)
@@ -747,7 +1018,6 @@ summary(tukey)
 ```
 
     ## Warning in RET$pfunction("adjusted", ...): Completion with error > abseps
-    ## Warning in RET$pfunction("adjusted", ...): Completion with error > abseps
 
     ## 
     ##   Simultaneous Tests for General Linear Hypotheses
@@ -768,7 +1038,7 @@ summary(tukey)
     ## 2017 - 2016 == 0 -0.136641   0.083148  -1.643    0.651
     ## 2018 - 2016 == 0 -0.002085   0.083148  -0.025    1.000
     ## 2019 - 2016 == 0  0.032027   0.091092   0.352    1.000
-    ## 2020 - 2016 == 0 -0.171776   0.083750  -2.051    0.380
+    ## 2020 - 2016 == 0 -0.171776   0.083750  -2.051    0.379
     ## 2021 - 2016 == 0 -0.243720   0.100018  -2.437    0.181
     ## 2018 - 2017 == 0  0.134556   0.078113   1.723    0.598
     ## 2019 - 2017 == 0  0.168668   0.086521   1.949    0.444
@@ -777,15 +1047,20 @@ summary(tukey)
     ## 2019 - 2018 == 0  0.034112   0.086521   0.394    1.000
     ## 2020 - 2018 == 0 -0.169691   0.078753  -2.155    0.318
     ## 2021 - 2018 == 0 -0.241635   0.095873  -2.520    0.150
-    ## 2020 - 2019 == 0 -0.203803   0.087099  -2.340    0.223
-    ## 2021 - 2019 == 0 -0.275747   0.102839  -2.681    0.101
+    ## 2020 - 2019 == 0 -0.203803   0.087099  -2.340    0.222
+    ## 2021 - 2019 == 0 -0.275747   0.102839  -2.681    0.102
     ## 2021 - 2020 == 0 -0.071944   0.096395  -0.746    0.989
     ## (Adjusted p values reported -- single-step method)
 
 Unfortunately, it appears that when p-values are adjusted to account for
-multiple comparisions, none of the years are significantly different.
+multiple comparisons, none of the years are significantly different.
 However, we can also improve the linear model by adding addition
 explanatory variables, such as the state and months.
+
+Different states could have difference beekeeping policies, climates,
+and environmental stressors, meaning that state could effect the
+percentages of bees lost. Similarly, different months have different
+climates, which could also be a factor in colony loss.
 
 ``` r
 lmbeenew<-glm(log(colony_lost_pct)~year + state + months, data=clean_colony)
@@ -868,9 +1143,9 @@ summary(lmbeenew)
 plot(lmbeenew)
 ```
 
-![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-29-3.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-29-4.png)<!-- -->
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-40-2.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-40-3.png)<!-- -->![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-40-4.png)<!-- -->
 
-The qqplot seems ok.
+The qqplot seems ok in distribution.
 
 ``` r
 anova(lmbeenew)
@@ -899,6 +1174,7 @@ summary(tukey2)
 ```
 
     ## Warning in RET$pfunction("adjusted", ...): Completion with error > abseps
+    ## Warning in RET$pfunction("adjusted", ...): Completion with error > abseps
 
     ## 
     ##   Simultaneous Tests for General Linear Hypotheses
@@ -911,23 +1187,23 @@ summary(tukey2)
     ## Linear Hypotheses:
     ##                   Estimate Std. Error z value Pr(>|z|)  
     ## 2016 - 2015 == 0  0.039559   0.067179   0.589   0.9971  
-    ## 2017 - 2015 == 0 -0.128003   0.063328  -2.021   0.3971  
+    ## 2017 - 2015 == 0 -0.128003   0.063328  -2.021   0.3969  
     ## 2018 - 2015 == 0  0.004269   0.063139   0.068   1.0000  
-    ## 2019 - 2015 == 0 -0.117714   0.071211  -1.653   0.6438  
-    ## 2020 - 2015 == 0 -0.166205   0.063755  -2.607   0.1216  
+    ## 2019 - 2015 == 0 -0.117714   0.071211  -1.653   0.6439  
+    ## 2020 - 2015 == 0 -0.166205   0.063755  -2.607   0.1218  
     ## 2021 - 2015 == 0 -0.091855   0.079176  -1.160   0.9075  
-    ## 2017 - 2016 == 0 -0.167562   0.067150  -2.495   0.1580  
+    ## 2017 - 2016 == 0 -0.167562   0.067150  -2.495   0.1585  
     ## 2018 - 2016 == 0 -0.035290   0.066953  -0.527   0.9984  
-    ## 2019 - 2016 == 0 -0.157273   0.074955  -2.098   0.3499  
-    ## 2020 - 2016 == 0 -0.205764   0.067508  -3.048   0.0364 *
-    ## 2021 - 2016 == 0 -0.131414   0.082058  -1.601   0.6778  
+    ## 2019 - 2016 == 0 -0.157273   0.074955  -2.098   0.3501  
+    ## 2020 - 2016 == 0 -0.205764   0.067508  -3.048   0.0362 *
+    ## 2021 - 2016 == 0 -0.131414   0.082058  -1.601   0.6777  
     ## 2018 - 2017 == 0  0.132272   0.062728   2.109   0.3434  
     ## 2019 - 2017 == 0  0.010289   0.070433   0.146   1.0000  
     ## 2020 - 2017 == 0 -0.038202   0.063143  -0.605   0.9966  
     ## 2021 - 2017 == 0  0.036148   0.079688   0.454   0.9993  
-    ## 2019 - 2018 == 0 -0.121983   0.070593  -1.728   0.5933  
-    ## 2020 - 2018 == 0 -0.170474   0.063160  -2.699   0.0962 .
-    ## 2021 - 2018 == 0 -0.096124   0.079201  -1.214   0.8874  
+    ## 2019 - 2018 == 0 -0.121983   0.070593  -1.728   0.5931  
+    ## 2020 - 2018 == 0 -0.170474   0.063160  -2.699   0.0967 .
+    ## 2021 - 2018 == 0 -0.096124   0.079201  -1.214   0.8873  
     ## 2020 - 2019 == 0 -0.048491   0.070901  -0.684   0.9934  
     ## 2021 - 2019 == 0  0.025859   0.087936   0.294   0.9999  
     ## 2021 - 2020 == 0  0.074350   0.080006   0.929   0.9673  
@@ -938,6 +1214,24 @@ summary(tukey2)
 Using a more complex model that accounts for state and month, there
 appears to be a significant difference between 2020 and 2016.
 
+If we combine our early filtering skills with our plotting skills, we
+can see if 2020 is actually higher liked we hyposizd earlier.
+
+``` r
+twoyears<-filter(clean_colony, year=="2016" | year=="2020")
+ggplot(twoyears)+  
+  aes(x=year, y=log(colony_lost))+ 
+  geom_boxplot()+
+  xlab("State") +
+  ylab("Colonies Lost")+
+  theme_classic()
+```
+
+![](project_1_for_knitting_final_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
+
+In fact, our earlier hyopothesis is not supported and it appears the
+percentage of colonies lost is actually LOWER in 2020.
+
 Now, try to use a linear model and anova to test whether the max colony
 amount correlates with year. You may want to include state as an
 additional explanatory variable.
@@ -947,142 +1241,10 @@ automatically uses 0.05, but you may interested in a different cutoff.
 
 If significance is found, follow up with a tukey test.
 
-\#Filtering Data
-
-After all of that complicated and scary data exploration and analytics,
-you might still have questions about the data set. filter() is a great
-code you can use to filter out the data to create a subset of variables
-appropriate to analyze your remaining questions.
-
-Let’s assume we want to analyze data for states with high colony losses
-in the first quarter of 2015 (January-March) where the colony loss
-percentage (colony_lost_pct) is greater than 20%, because we want to
-find out which state is responsible for the honey shortage on the market
-during that period. Here’s how you would go about filtering this data.
-
-# 1
-
-Making sure you have loaded “tidyverse” package, which we have done so
-in the very very beginning. However, just to make sure we have the
-package installed, loaded and running.
-
-``` r
-install.packages("tidyverse")
-```
-
-    ## Warning: package 'tidyverse' is in use and will not be installed
-
-``` r
-library(dplyr)
-```
-
-It seems like we have secured the dplyr package.
-
-\#2 understand your variables.
-
-Here we can use str() again to check out which variables we need to
-filter for our question.
-
-``` r
-str(colony)
-```
-
-    ## spc_tbl_ [1,222 × 10] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
-    ##  $ year           : Factor w/ 7 levels "2015","2016",..: 1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ months         : Factor w/ 4 levels "April-June","January-March",..: 2 2 2 2 2 2 2 2 2 2 ...
-    ##  $ state          : Factor w/ 47 levels "Alabama","Arizona",..: 1 2 3 4 5 6 7 8 9 10 ...
-    ##  $ colony_n       : num [1:1222] 7000 35000 13000 1440000 3500 3900 305000 104000 10500 81000 ...
-    ##  $ colony_max     : num [1:1222] 7000 35000 14000 1690000 12500 3900 315000 105000 10500 88000 ...
-    ##  $ colony_lost    : num [1:1222] 1800 4600 1500 255000 1500 870 42000 14500 380 3700 ...
-    ##  $ colony_lost_pct: num [1:1222] 26 13 11 15 12 22 13 14 4 4 ...
-    ##  $ colony_added   : num [1:1222] 2800 3400 1200 250000 200 290 54000 47000 3400 2600 ...
-    ##  $ colony_reno    : num [1:1222] 250 2100 90 124000 140 NA 25000 9500 760 8000 ...
-    ##  $ colony_reno_pct: num [1:1222] 4 6 1 7 1 NA 8 9 7 9 ...
-    ##  - attr(*, "spec")=
-    ##   .. cols(
-    ##   ..   year = col_double(),
-    ##   ..   months = col_character(),
-    ##   ..   state = col_character(),
-    ##   ..   colony_n = col_double(),
-    ##   ..   colony_max = col_double(),
-    ##   ..   colony_lost = col_double(),
-    ##   ..   colony_lost_pct = col_double(),
-    ##   ..   colony_added = col_double(),
-    ##   ..   colony_reno = col_double(),
-    ##   ..   colony_reno_pct = col_double()
-    ##   .. )
-    ##  - attr(*, "problems")=<externalptr>
-
-We will focus on the months, state, and colony_lost_pct columns for
-filtering.
-
-\#3 Applying filter
-
-We need to filter the data for: 1) Time period between January- March of
-2015 2) State with colony loss greater than 20%
-
-``` r
-# Filter for January-March 2015 and colony loss percentage greater than 20%
-filtered_colony2015 = colony[(colony[["year"]] == 2015) & 
-                        (colony[["months"]] == "January-March") & 
-                        (colony[["colony_lost_pct"]] > 20), ]
-
-# Display the filtered dataset
-print(filtered_colony2015)
-```
-
-    ## # A tibble: 18 × 10
-    ##    year  months        state     colony_n colony_max colony_lost colony_lost_pct
-    ##    <fct> <fct>         <fct>        <dbl>      <dbl>       <dbl>           <dbl>
-    ##  1 2015  January-March Alabama       7000       7000        1800              26
-    ##  2 2015  January-March Connecti…     3900       3900         870              22
-    ##  3 2015  January-March Illinois      6000      10500        4200              40
-    ##  4 2015  January-March Indiana       9000       9500        2100              22
-    ##  5 2015  January-March Kansas        4600       7000        1600              23
-    ##  6 2015  January-March Kentucky      7500      10500        4100              39
-    ##  7 2015  January-March Maryland      7500      10000        4100              41
-    ##  8 2015  January-March Massachu…     2900       4600        1000              22
-    ##  9 2015  January-March New York     27000      30000        6500              22
-    ## 10 2015  January-March North Ca…    24000      26000        7000              27
-    ## 11 2015  January-March Ohio         18000      22000       10500              48
-    ## 12 2015  January-March Oklahoma      9500      26000        6000              23
-    ## 13 2015  January-March Pennsylv…    14000      21000        6500              31
-    ## 14 2015  January-March Tennessee     9500       9500        2000              21
-    ## 15 2015  January-March Virginia      8000       9000        2500              28
-    ## 16 2015  January-March West Vir…     4700       6000        1800              30
-    ## 17 2015  January-March Wisconsin    16500      29000        8000              28
-    ## 18 2015  January-March Other St…     3410       8990        2080              23
-    ## # ℹ 3 more variables: colony_added <dbl>, colony_reno <dbl>,
-    ## #   colony_reno_pct <dbl>
-
-This is a good way to filter data set for complex questions as we stated
-above. Or, if you have simpler questions such as those below.
-
-\#Example 1 Filter Rows by a Single Condition If you want to filter the
-data for records where the state is “California”
-
-``` r
-california_data <- filter(colony, state == "California")
-```
-
-simple right?
-
-\#Example 2 Filter Rows by Multiple Conditions If you want to filter
-rows where the colony loss percentage is greater than 10% and the state
-is “Florida”
-
-``` r
-Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
-```
-
-The filter() function is an essential tool when analyzing data in R. You
-can use it to isolate specific subsets of your data that are relevant to
-your analysis by defining conditions based on the values in your
-dataset’s columns. Hope this demonstration of the filter function helped
-you.
+Thank you for following the tutorial! I hoped you learned something new!
 
 *Acknowledgements*
 
 Kai worked on the data filtering section, Sweta wrote the initial data
-analysis, na removal and simple.eda, and Victoria did the visualization
-and linear modeling sections.
+analysis, NA removal, simple.eda, log transformation and Shapiro tests,
+and Victoria did the visualization and linear modeling sections.
