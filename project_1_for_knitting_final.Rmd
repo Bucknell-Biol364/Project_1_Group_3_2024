@@ -10,6 +10,24 @@ Hello! This is a tutorial meant to help you do some basic data analysis and make
 
 We'll be giving a lot of examples from a dataset of bee colony loss across the United States, a recent and pressing ecological and agricultural problem. We've also included some areas for you to put your own understanding into practice and try to write your own code. 
 
+There are a couple of objectives for you to follow along with in this assignment: 
+
+1. To be able to explore data within a dataset based on the data type               to be able to convert variables into different type
+      to be able to identify outliers, messy data, or non-normal distributions
+      
+2. To use filter to create a subset of a variable appropriate to your analysis question
+
+3. To create appropriate and clear graphs to visualize data in both categorical and numeric variables represented in the hypothesis using ggplot2
+    to be able to create a scatterplot and box and whisker plot
+    to be able to edit labels and change the style to fit their preferences
+    to able to interpret the plot 
+    
+4. To use an anova and linear model to help us interpret variables in our provided hypothesis
+ to be able to create a linear model
+ to be able to do follow up anova and tukey tests
+ to be able to interpret the results from these tests
+
+
 ## Loading the packages
 
 First of all, you'll need to load all the packages that might be required for the project that will allow you to use certain functions.  
@@ -142,9 +160,137 @@ summary(clean_colony)
 
 We can see that after removing NA's, the number of observations decreased from 1222 to 929. 
 
+
+#Filtering Data
+Besides dropping nas, using the filter function can be another strategy to create clean datasets and eliminate irrelevant information. 
+
+After all of that complicated and scary data exploration, you might still have questions about the data set. filter() is a great code you can use to filter out the data to create a subset of variables appropriate to analyze your remaining questions. 
+
+Let's assume we want to analyze data for states with high colony losses in the first quarter of 2015 (January-March) where the colony loss percentage (colony_lost_pct) is greater than 20%, because we want to find out which state is responsible for bee colony loss. Here's how you would go about filtering this data.
+ 
+#1 understand your variables. 
+
+Here we can use str() again to check out which variables we need to filter for our question. 
+
+
+```{r}
+str(colony)
+
+```
+
+We will focus on the months, state, and colony_lost_pct columns for filtering.
+
+#2 Applying filter
+
+We need to filter the data for:
+  1) Time period between January- March of 2015
+  2) State with colony loss greater than 20%
+  
+```{r}
+# Filter for January-March 2015 and colony loss percentage greater than 20%
+filtered_colony2015 = colony[(colony[["year"]] == 2015) & 
+                        (colony[["months"]] == "January-March") & 
+                        (colony[["colony_lost_pct"]] > 20), ]
+
+# Display the filtered dataset
+print(filtered_colony2015)
+
+```
+This is a good way to filter data set for complex questions as we stated above. Or, if you have simpler questions such as those below.
+
+
+
+
+#Example 1
+Filter Rows by a Single Condition If you want to filter the data for records where the state is "California"
+```{r}
+california_data <- filter(colony, state == "California")
+
+```
+simple right? 
+
+
+
+#Example 2
+Filter Rows by Multiple Conditions If you want to filter rows where the colony loss percentage is greater than 10% and the state is "Florida"
+```{r}
+Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
+```
+
+The filter() function is an essential tool when analyzing data in R. You can use it to isolate specific subsets of your data that are relevant to your analysis by defining conditions based on the values in your dataset's columns. Hope this demonstration of the filter function helped you. 
+
+
+
+#Filtering Data
+
+After all of that complicated and scary data exploration and analytics, you might still have questions about the data set. filter() is a great code you can use to filter out the data to create a subset of variables appropriate to analyze your remaining questions. It will eliminate rows (NOT columns) that do not contain the arguments you provide.
+
+Let's assume we want to analyze data for states with high colony losses in the first quarter of 2015 (January-March) where the colony loss percentage (colony_lost_pct) is greater than 20%, because we want to find out which state is responsible for the honey shortage on the market during that period. Here's how you would go about filtering this data.
+ 
+#1 understand your variables. 
+
+Here we can use str() again to check out which variables we need to filter for our question. 
+
+
+```{r}
+str(colony)
+
+```
+
+We will focus on the months, state, and colony_lost_pct columns for filtering.
+
+#3 Applying filter
+
+We need to filter the data for:
+  1) Time period between January- March of 2015
+  2) State with colony loss greater than 20%
+  
+```{r}
+# Filter for January-March 2015 and colony loss percentage greater than 20%
+filtered_colony2015 = colony[(colony[["year"]] == 2015) & 
+                        (colony[["months"]] == "January-March") & 
+                        (colony[["colony_lost_pct"]] > 20), ]
+
+# Display the filtered dataset
+print(filtered_colony2015)
+
+```
+This is a good way to filter data set for complex questions as we stated above. Or, if you have simpler questions such as those below.
+
+
+
+
+#Example 1
+Filter Rows by a Single Condition If you want to filter the data for records where the state is "California"
+
+You can use == to say "equals", and "!=" to say do not include. 
+
+```{r}
+california_data <- filter(colony, state == "California")
+
+```
+simple right? 
+
+
+
+#Example 2
+Filter Rows by Multiple Conditions If you want to filter rows where the colony loss percentage is greater than 10% and the state is "Florida"
+```{r}
+Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
+```
+The filter() function is an essential tool when analyzing data in R. You can use it to isolate specific subsets of your data that are relevant to your analysis by defining conditions based on the values in your dataset's columns. Hope this demonstration of the filter function helped you. 
+
+
+Test it out yourself by using the filter() function to create a data frame with only rows from the state of Pennslyvania.
+
+```{r}
+
+```
+
+
 ## Data visualization (graphs!!)
 
-We have many numberic variables in our dataset. One easy way to visualize the numeric variables independently is using the "simple.eda" function. It means Simple Exploratory Data Analysis. 
+We have many numeric variables in our dataset. One easy way to visualize the numeric variables independently is using the "simple.eda" function. It means Simple Exploratory Data Analysis. 
 This function generates three graphs (Histogram, boxplot and Normal Q-Q plot) for each of the variables, and allows us to tell whether they are normally distributed or not.
 
 ```{r}
@@ -170,7 +316,8 @@ Well, one other way to check whether the data is normally distributed or not is 
 ```{r}
 shapiro.test(clean_colony$colony_n)
 ```
-The value is too low which proves that the data is nor normally dsitributed.
+
+The p-value is below 0.05, which suggests that the data is nor normally distributed. Generally, a low  p-value tells you it is unlikely the results seen are due to chance. In this case, the hypothesis tested is that the data is NOT normal, therefore a p-value below 0.05 means there is a 95% confidence that the data is not normal. 
 
 ```{r}
 shapiro.test(clean_colony$colony_lost)
@@ -225,7 +372,7 @@ ggplot(clean_colony)+
   
   
   xlab("State") + #this fixes the labels so they say what we want
-  ylab("Colonies Lost")+
+  ylab("Colonies Lost/Year")+
   
   
   
@@ -309,19 +456,19 @@ https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
 
 if (!require("RColorBrewer")) install.packages("RColorBrewer"); library(RColorBrewer)
 
-ggplot(clean_colony)+  
+ggplot(clean_colony)+  # the general formatting is very similar to making the barplot
   aes(x=log(colony_lost), y=log(colony_added), color=year)+ 
-  geom_point()+ 
+  geom_point()+ #use geom_point to create a scatterplot
   xlab("Colonies Lost") +
   ylab("Colonies Added")+
   theme_classic()+
-  scale_color_brewer(palette="OrRd")
+  scale_color_brewer(palette="OrRd") #this calls in colorbrewer and tells it I want to use the OrRd palatte
 ```
 
 From this, we can see that the relationship is mostly linear--as more colonies are lost, more are added as well. However, there is also a pretty large "hump" hanging down below the 5.0 y-axis, suggesting there are places with pretty significant colony loss that don't add in new colonies. We can also see a small trend with the points from 2021 tending to be higher, suggesting that perhaps beekeepers are mobilizing to add more new colonies. 
 
 
-We can further test this trend by adding linear models for each year using geom_smooth. (Of course, you would want to be sure using a linear model is appropriate. We will assume it is for here.) You will want to include the argument "method="lm"" to tell it to use a linear model. Otherwise, it'll try to fit the with kinda funky, not-so-great to interpret curvy line. Se=false gets rid of messy error bars, though you may want these in some cases.
+We can further test this trend by adding linear models for each year using geom_smooth. (Of course, you would want to be sure using a linear model is appropriate. We will assume it is for here.) You will want to include the argument "method="lm"" to tell it to use a linear model. Otherwise, it'll try to fit the with kinda funky, not-so-great to interpret curvy line. Se=false gets rid of messy error bars, though you may want these in some cases to show how good the fit is.
 
 ```{r}
 ggplot(clean_colony)+  
@@ -354,8 +501,9 @@ Although the graphs we made are helpful to develop some initial trends and see o
 Since we are looking at data collected from the real world and not an experiment, we can't really suggest causation, but we can test for correlations between factors. 
 
 
-An easy way to test correlation is to use a linear model. We can start by looking at if the percentage lost varies by year
+An easy way to test correlation is to use a linear model. We can start by looking at if the percentage lost varies by year. 
 
+We hypothesize that the percentage lost will increase by year, with newer years like 2021 being significantly higher than years like 2016. 
 
 ```{r}
 
@@ -381,7 +529,7 @@ We can see that this improves the deviating upper tail a bit.
 
 Now that we know that using a linear model is OK, we can look to interpret the model further. While the summary function spits out some p-values, these can be inaccurate as they don't account for error from repeating tests over many categories. 
 
-Doing an Anova can provide more accurate p-values.
+Doing an Anova can provide more accurate p-values. In this case, the p-value represents the chance that null hypothesis is true. In the anova, the null hypothesis is that there is NOT a difference between the distribution of two groups. So, when we have a low p-value, it means that there is a very low chance that the two groups have the same distribution and thus they are different!
 
 ```{r}
 anova(lmbeelog)
@@ -394,7 +542,9 @@ tukey<-glht(lmbeelog, linfct=mcp(year="Tukey"))
 summary(tukey)
 ```
 
-Unfortunately, it appears that when p-values are adjusted to account for multiple comparisions, none of the years are significantly different. However, we can also improve the linear model by adding addition explanatory variables, such as the state and months. 
+Unfortunately, it appears that when p-values are adjusted to account for multiple comparisons, none of the years are significantly different. However, we can also improve the linear model by adding addition explanatory variables, such as the state and months. 
+
+Different states could have difference beekeeping policies, climates, and environmental stressors, meaning that state could effect the percentages of bees lost. Similarly, different months have different climates, which could also be a factor in colony loss. 
 
 
 
@@ -405,7 +555,7 @@ plot(lmbeenew)
 ```
 
 
-The qqplot seems ok.
+The qqplot seems ok in distribution.
 
 ```{r}
 anova(lmbeenew)
@@ -417,7 +567,20 @@ summary(tukey2)
 
 Using a more complex model that accounts for state and month, there appears to be a significant difference between 2020 and 2016. 
 
+If we combine our early filtering skills with our plotting skills, we can see if 2020 is actually higher liked we hyposizd earlier.
 
+```{r}
+twoyears<-filter(clean_colony, year=="2016" | year=="2020")
+ggplot(twoyears)+  
+  aes(x=year, y=log(colony_lost))+ 
+  geom_boxplot()+
+  xlab("State") +
+  ylab("Colonies Lost")+
+  theme_classic()
+
+```
+
+In fact, our earlier hyopothesis is not supported and it appears the percentage of colonies lost is actually LOWER in 2020.
 
 
 Now, try to use a linear model and anova to test whether the max colony amount correlates with year. You may want to include state as an additional explanatory variable. 
@@ -433,74 +596,7 @@ Be sure to set your cutoff p-value before running the tests. R automatically use
 If significance is found, follow up with a tukey test.
 
 
-
-
-#Filtering Data
-
-After all of that complicated and scary data exploration and analytics, you might still have questions about the data set. filter() is a great code you can use to filter out the data to create a subset of variables appropriate to analyze your remaining questions. 
-
-Let's assume we want to analyze data for states with high colony losses in the first quarter of 2015 (January-March) where the colony loss percentage (colony_lost_pct) is greater than 20%, because we want to find out which state is responsible for the honey shortage on the market during that period. Here's how you would go about filtering this data.
- 
-# 1
-Making sure you have loaded "tidyverse" package, which we have done so in the very very beginning. However, just to make sure we have the package installed, loaded and running. 
-
-```{r} 
-install.packages("tidyverse")
-library(dplyr)
-```
-It seems like we have secured the dplyr package. 
-
-
-#2 understand your variables. 
-
-Here we can use str() again to check out which variables we need to filter for our question. 
-
-
-```{r}
-str(colony)
-
-```
-
-We will focus on the months, state, and colony_lost_pct columns for filtering.
-
-#3 Applying filter
-
-We need to filter the data for:
-  1) Time period between January- March of 2015
-  2) State with colony loss greater than 20%
-  
-```{r}
-# Filter for January-March 2015 and colony loss percentage greater than 20%
-filtered_colony2015 = colony[(colony[["year"]] == 2015) & 
-                        (colony[["months"]] == "January-March") & 
-                        (colony[["colony_lost_pct"]] > 20), ]
-
-# Display the filtered dataset
-print(filtered_colony2015)
-
-```
-This is a good way to filter data set for complex questions as we stated above. Or, if you have simpler questions such as those below.
-
-
-
-
-#Example 1
-Filter Rows by a Single Condition If you want to filter the data for records where the state is "California"
-```{r}
-california_data <- filter(colony, state == "California")
-
-```
-simple right? 
-
-
-
-#Example 2
-Filter Rows by Multiple Conditions If you want to filter rows where the colony loss percentage is greater than 10% and the state is "Florida"
-```{r}
-Florida_high_loss <- filter(colony, state == "Florida" & colony_lost_pct > 10)
-```
-The filter() function is an essential tool when analyzing data in R. You can use it to isolate specific subsets of your data that are relevant to your analysis by defining conditions based on the values in your dataset's columns. Hope this demonstration of the filter function helped you. 
-
+Thank you for following the tutorial! I hoped you learned something new!
 
 *Acknowledgements*
 
