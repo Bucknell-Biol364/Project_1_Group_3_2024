@@ -13,7 +13,7 @@ We are interested in speaking to an audience that is taking this class and has h
 
 1. Make sure you have R and R Studio downloaded on your computer. 
 2. In the above repository, download project_1_for_knitting_final.Rmd. Because it is an rmd, the working diretory doesn't matter too much, but try to move it to a file location where you can find it easily.
-3. Open this file in R studio!
+3. Open this file in R studio! There are no extra data frames for this exercise, so no need to worry about moving any other files. :)
 4. Read along through the rmd file. You can run each code chunk as you read through to see what it does! Try to understand what the code is doing, don't just breeze past it
 5. There will be some code chunks that are empty. As you run into them, take the time to fill them out and put the techniques you just saw demonstrated into use!
 
