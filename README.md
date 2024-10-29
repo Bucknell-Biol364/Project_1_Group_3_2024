@@ -34,5 +34,3 @@ We are interested in speaking to an audience that is taking this class and has h
  to be able to create a linear model
  to be able to do follow up anova and tukey tests
  to be able to interpret the results from these tests
-
-You will need to edit this README.md document when your tutorial is complete to include instructions for using the tutorial.
